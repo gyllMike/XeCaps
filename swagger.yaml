@@ -1,0 +1,2080 @@
+swagger: "2.0"
+info:
+  title: Space Mission Control API
+  version: 1.0.1
+  description: |
+    API for managing space missions, control users, astronauts, and launch vehicles.
+    All error strings are required to be clear descriptive message. The descriptive message won't change the marks you receive when being automarked as long as you make an attempt for each one to be custom, but they will affect your code quality mark.
+
+schemes:
+  - http
+
+tags:
+  - name: "Iteration 2 (Using Iteration 1)"
+    description: Iteration 2 routes that leverage work done in iteration 1
+  - name: "Iteration 2 (Using a modified Iteration 1)"
+    description: Iteration 2 routes that leverage work done in iteration 1 with a modified output
+  - name: "Iteration 2 (Example)"
+    description: Iteration 2 example routes that are present to give you a guide  
+  - name: "Iteration 2 (New)"
+    description: Iteration 2 routes that are new
+  - name: "Iteration 3 (Using a modified Iteration 2)"
+    description: Iteration 3 routes that leverage work done in iteration 2 with a modified inputs and output
+  - name: "Iteration 3 (Example Adaptation targets)"
+    description: Iteration 3 routes for which you have been given starter code that you must adapt 
+  - name: "Iteration 3 (New)"
+    description: Iteration 3 routes that are new
+  - name: "Iteration 3 (Bonus)"
+    description: Iteration 3 bonus routes
+
+
+components:
+  prim:
+    ControlUserSessionId:
+      type: string
+      description: The sessionID representing a logged in controlUser
+      example: "abcd1234"
+    Error:
+      type: string
+      example: "Meaningful error message"
+    Email:
+      type: string
+      example: james.kirk@starfleet.gov.au
+    Password:
+      type: string
+      example: livelong123
+    NameFirst:
+      type: string
+      example: John
+    NameLast:
+      type: string
+      example: Carter
+    ControlUserId:
+      type: number
+      example: 1
+    MissionId:
+      type: number
+      example: 1
+    AstronautId:
+      type: number
+      example: 1
+    LaunchId:
+      type: number
+      example: 4
+    LaunchIdCompleted:
+      type: number
+      example: 2
+    LaunchVehicleId:
+      type: number
+      example: 1
+    PayloadId:
+      type: number
+      example: 1
+    AstronautDesignation:
+      type: string
+      description: A concatenated string of rank, nameFirst, space and then nameLast
+      example: Captain James Kirk
+    Timestamp:
+      type: number
+      example: 1739912980
+      description: In seconds. You can find more information that here https://en.wikipedia.org/wiki/Unix_time
+    LaunchSummary:
+      type: string
+      description: String representation of the launch in the format [mission.target] mission.name - launch.createdAt 
+      example: "[Earth orbit] Mercury - 1192323092"
+    LLMMessage:
+      type: object
+      properties:
+        messageContent:
+          type: string
+          description: The content of the message being sent
+          example: "How many asteroids are there near earth?"
+    Payload:
+      type: object
+      properties:
+        payloadId:
+          $ref: '#/components/prim/PayloadId'
+        description:
+          type: string
+          description: A description of the payload that is being sent up on this space mission
+          example: UNSW Cubesat
+        weight: 
+          type: number
+          description: The weight of the payload in kilograms
+          example: 400
+        deployed:
+          type: boolean
+          description: true if the payload has been deployed, false otherwise
+          example: false
+    LaunchCalculationParameters:
+      type: object
+      properties:
+        targetDistance:
+          type: number
+          description: The distance to the target for this launch in metres
+          example: 12000
+        fuelBurnRate:
+          type: number
+          description: The amount of thrust fuel that will be consumed per second (kg/s)
+          example: 20
+        thrustFuel:
+          type: number
+          description: The amount of thrust fuel (kg) that will be added to the launch vehicle at the start of the launch
+          example: 1000
+        activeGravityForce:
+          type: number
+          format: float
+          description: The force of gravity at the launch point (m/s)
+          example: 9.8
+        maneuveringDelay:
+          type: number
+          format: int32
+          description: The number of seconds to wait before firing maneuvering jets once you enter a MANEUVERING state.
+          example: 2
+    ValidStateUpdateActions:
+      type: string
+      description: An action to update the state of the current launch. Valid actions are [LIFTOFF, SKIP_WAITING, FIRE_THRUSTERS, CORRECTION, DEPLOY_PAYLOAD, FAULT, GO_HOME, RETURN]
+      example: "CORRECTION"
+    MessageContent:
+      type: string
+      example: "What is the orbit distance to the moon?"
+      description: The content of the chat message.
+    MessageContentResponse:
+      type: string
+      example: "The orbit distance of the moon is 382,500 km"
+      description: The content of the chat message.
+    SingleMessageLogEntry:
+      type: object
+      properties:
+        astronautId:
+          $ref: '#/components/prim/AstronautId'
+        messageId:
+          type: number
+          description: The ID of the message being sent 
+          example: 1
+        chatbotResponse:
+          type: boolean
+          example: false
+          description: A flag to indicate if this was sent by the LLM Chatbot
+        messageContent:
+          $ref: '#/components/prim/MessageContent'
+        timeSent:
+          $ref: '#/components/prim/Timestamp'
+    SingleMessageLogResponseEntry:
+      type: object
+      properties:
+        astronautId:
+          $ref: '#/components/prim/AstronautId'
+        messageId:
+          type: number
+          description: The ID of the message being sent 
+          example: 1
+        chatbotResponse:
+          type: boolean
+          example: false
+          description: A flag to indicate if this was sent by the LLM Chatbot
+        messageContent:
+          $ref: '#/components/prim/MessageContentResponse'
+        timeSent:
+          $ref: '#/components/prim/Timestamp'
+    SmallMissionList:
+      type: array
+      items:
+        type: object
+        properties:
+          missionId:
+            $ref: '#/components/prim/MissionId'
+          name:
+            type: string
+            example: Mercury
+          
+    SmallAstronautList:
+      type: array
+      items:
+        type: object
+        properties:
+          astronautId:
+            $ref: '#/components/prim/AstronautId'
+          designation:
+            type: string
+            example: Captain James Kirk
+          assigned:
+            type: boolean
+            example: false
+    SmallLaunchVehiclesList:
+      type: array
+      items:
+        type: object
+        properties:
+          launchVehicleId:
+            $ref: '#/components/prim/LaunchVehicleId'
+          name:
+            type: string
+            example: Saturn V
+          inLaunch:
+            type: boolean
+            example: false
+    SmallLaunchesList:
+      type: object
+      properties:
+        activeLaunches:
+          type: array
+          items:
+            $ref: '#/components/prim/LaunchId'
+        completedLaunches:
+          type: array
+          items:
+            $ref: '#/components/prim/LaunchIdCompleted'
+    MessageList:
+      type: object
+      properties:
+        chatHistory:
+          type: array
+          items:
+            type: object
+            properties:
+              launchId:
+                $ref: '#/components/prim/LaunchId'
+              messageLog:
+                type: array
+                items:
+                  $ref: '#/components/prim/SingleMessageLogEntry'
+
+    
+  group:
+    ControlUser:
+      type: object
+      properties:
+        controlUserId:
+          type: integer
+          example: 132
+        name:
+          type: string
+          example: James Kirk
+        email:
+          type: string
+          example: james.kirk@starfleet.com.au
+        numSuccessfulLogins:
+          type: integer
+          example: 5
+        numFailedPasswordsSinceLastLogin:
+          type: integer
+          example: 2
+    SmallMissions:
+      type: array
+      items:
+        type: object
+        properties:
+          missionId:
+            $ref: '#/components/prim/MissionId'
+          name:
+            type: string
+            example: My Space Mission name
+    DeployedPayloads:
+      type: array
+      items:
+        type: object
+        properties:
+          payloadId:
+            $ref: '#/components/prim/PayloadId'
+          description:
+            type: string
+            description: A description of the payload that is being sent up on this space mission
+            example: UNSW Cubesat
+          weight: 
+            type: number
+            description: The weight of the payload in kilograms
+            example: 400
+          speed:
+            type: number
+            description: The speed of the payload when released from the launch vehicle (m/s)
+            example: 10000
+          timeOfDeployment:
+            $ref: '#/components/prim/Timestamp'
+          relativePosition:
+            type: object
+            properties:
+              orbitDistance:
+                type: number
+                description: The launch distance plus the Earth's radius in metres (6378000 m)
+                example: 16378000
+              angleOfDeviation:
+                type: number
+                description: The angle of deviation from the origin position expressed in radians
+                example: 0.5
+    SmallAstronauts:
+      type: array
+      items:
+        type: object
+        properties:
+          astronautId: 
+            $ref: '#/components/prim/AstronautId'
+          designation:
+            $ref: '#/components/prim/AstronautDesignation'
+          assigned:
+            type: boolean
+            description: If this astronaut is currently assigned to a space mission
+            example: true
+    SmallAstronautsIter3:
+      type: array
+      items:
+        type: object
+        properties:
+          astronautId: 
+            $ref: '#/components/prim/AstronautId'
+          designation:
+            $ref: '#/components/prim/AstronautDesignation'
+          assigned:
+            type: boolean
+            description: If this astronaut is currently assigned to a space mission
+            example: true
+    SmallLaunchVehicles:
+      type: array
+      items:
+        type: object
+        properties:
+          launchVehicleId: 
+            $ref: '#/components/prim/LaunchVehicleId'
+          name:
+            type: string
+            description: The name of the launch vehicle
+            example: Challenger
+          assigned:
+            type: boolean
+            description: If this launch is currently assigned to a space mission
+            example: true
+    SmallLaunches:
+      type: object
+      properties:
+        activeLaunches:
+          type: array
+          description: A list of all launches that are NOT in the 'ON_EARTH' state.
+          items:
+            $ref: '#/components/prim/LaunchId'
+        completedLaunches:
+          type: array
+          description: A list of all launches that are in the 'ON_EARTH' state.
+          items:
+            $ref: '#/components/prim/LaunchIdCompleted'
+    MissionIter2:
+      type: object
+      properties:
+        missionId:
+          $ref: '#/components/prim/MissionId'
+        name:
+          type: string
+          example: This is the name of the space mission
+        timeCreated:
+          $ref: '#/components/prim/Timestamp'
+        timeLastEdited:
+          $ref: '#/components/prim/Timestamp'
+        description:
+          type: string
+          example: A description of the aims of this space mission
+        target:
+          type: string
+          example: The target destination of this space mission
+        assignedAstronauts:
+          type: array
+          items:
+            type: object
+            properties:
+              astronautId:
+                type: number
+                example: 1
+              designation:
+                $ref: '#/components/prim/AstronautDesignation'
+    MissionIter3:
+      type: object
+      properties:
+        missionId:
+          $ref: '#/components/prim/MissionId'
+        name:
+          type: string
+          example: This is the name of the space mission
+        timeCreated:
+          $ref: '#/components/prim/Timestamp'
+        timeLastEdited:
+          $ref: '#/components/prim/Timestamp'
+        description:
+          type: string
+          example: A description of the aims of this space mission
+        target:
+          type: string
+          example: The target destination of this space mission
+        assignedAstronauts:
+          type: array
+          items:
+            type: object
+            properties:
+              astronautId:
+                type: number
+                example: 1
+              designation:
+                $ref: '#/components/prim/AstronautDesignation'
+    AstronautIter2:
+      type: object
+      properties:
+        astronautId:
+          $ref: '#/components/prim/AstronautId'
+        designation:
+          $ref: '#/components/prim/AstronautDesignation'
+        timeAdded:
+          $ref: '#/components/prim/Timestamp'
+        timeLastEdited:
+          $ref: '#/components/prim/Timestamp'
+        age:
+          type: number
+          example: 30
+        weight:
+          type: number
+          example: 70
+        height:
+          type: number
+          example: 156
+        assignedMission:
+          type: object
+          properties:
+            missionId:
+              type: number
+              example: 1
+            objective:
+              type: string
+              description: The mission target in square brackets concatenated with the mission name. E.g. Target "Earth Orbit" and Name "Mercury" would be "[Earth Orbit] Mercury"
+              example: "[Earth Orbit] Mercury"
+    LaunchVehicle:
+      type: object
+      properties:
+        launchVehicleId:
+          $ref: '#/components/prim/LaunchVehicleId'
+        name:
+          type: string
+          description: Name of the launch vehicle
+          example: Saturn V
+        timeAdded:
+          $ref: '#/components/prim/Timestamp'
+        timeLastEdited:
+          $ref: '#/components/prim/Timestamp'
+        maxCrewWeight:
+          type: number
+          example: 500
+        maxPayloadWeight:
+          type: number
+          example: 700
+        launchVehicleWeight:
+          type: number
+          example: 4000
+        thrustCapacity:
+          type: number
+          example: 1000000
+        startingManeuveringFuel: 
+          type: number
+          example: 10
+        retired:
+          type: boolean
+          example: false
+        launches:
+          type: array
+          items:
+            type: object
+            properties:
+              launch:
+                $ref: '#/components/prim/LaunchSummary'
+              state:
+                type: string
+                example: MISSION_COMPLETE
+                description: The current state of the launch.
+    Launch:
+      type: object
+      properties:
+        launchId:
+          $ref: '#/components/prim/LaunchId'
+        missionCopy:
+          $ref: '#/components/group/MissionIter3'
+        timeCreated:
+          $ref: '#/components/prim/Timestamp'
+        state:
+          type: string
+          description: The current state of the launch. Can be any one of [READY_TO_LAUNCH, LAUNCHING, MANEUVERING, RE-ENTRY, COASTING, MISSION_COMPLETE, ON_EARTH]
+          example: COASTING
+        launchVehicle:
+          type: object
+          properties:
+            launchVehicleId:
+              $ref: '#/components/prim/LaunchVehicleId'
+            name:
+              type: string
+              example: Saturn V
+            maneuveringFuelRemaining:
+              type: number
+              description: The number of units of maneuvering fuel left
+              example: 7
+        payload:
+          $ref: '#/components/prim/Payload'
+        allocatedAstronauts:
+          type: array
+          items:
+            type: object
+            properties:
+              astronautId:
+                $ref: '#/components/prim/AstronautId'
+              designation:
+                $ref: '#/components/prim/AstronautDesignation'
+        launchCalculationParameters: 
+          $ref: '#/components/prim/LaunchCalculationParameters'
+          
+  path:
+    MissionId:
+      in: path
+      name: missionid
+      required: true
+      schema:
+        $ref: '#/components/prim/MissionId'
+    AstronautId:
+      in: path
+      name: astronautid
+      required: true
+      schema:
+        $ref: '#/components/prim/AstronautId'
+    LaunchVehicleId:
+      in: path
+      name: launchvehicleid
+      required: true
+      schema:
+        $ref: '#/components/prim/LaunchVehicleId'
+    LaunchId:
+      in: path
+      name: launchid
+      required: true
+      schema:
+        $ref: '#/components/prim/LaunchId'
+
+  header:
+    ControlUserSessionId:
+      in: header
+      name: controlUserSessionId
+      required: true
+      schema:
+        $ref: '#/components/prim/ControlUserSessionId'
+  body:
+    Register:
+      in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        properties:
+          email:
+            $ref: '#/components/prim/Email'
+          password:
+            $ref: '#/components/prim/Password'
+          nameFirst:
+            $ref: '#/components/prim/NameFirst'
+          nameLast:
+            $ref: '#/components/prim/NameLast'
+    Login:
+      in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        properties:
+          email:
+            $ref: '#/components/prim/Email'
+          password:
+            $ref: '#/components/prim/Password'
+    ControlUserDetailsUpdate:
+      in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        properties:
+          email:
+            $ref: '#/components/prim/Email'
+          nameFirst:
+            $ref: '#/components/prim/NameFirst'
+          nameLast:
+            $ref: '#/components/prim/NameLast'
+    ControlUserPasswordUpdate:
+      in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        properties:
+          oldPassword:
+            $ref: '#/components/prim/Password'
+          newPassword:
+            $ref: '#/components/prim/Password'
+    MissionCreate:      
+      in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        properties:
+          name:
+            type: string
+          description:
+            type: string
+            example: A description of this space mission
+          target:
+            type: string
+            example: The target destination of this space mission
+    MissionNameUpdate:      
+      in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        properties:
+          name:
+            type: string
+    MissionDescriptionUpdate:      
+      in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        properties:
+          description:
+            type: string
+            example: A description of this space mission
+    MissionTargetUpdate:      
+      in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        properties:
+          target:
+            type: string
+            example: The target destination of this space mission
+    MissionTransfer:
+      in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        properties:
+          controlUserEmail:
+            $ref: '#/components/prim/Email'
+    AstronautCreate:
+      in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        properties:
+          nameFirst:
+            type: string
+          nameLast:
+            type: string
+          rank:
+            type: string
+          age:
+            type: integer
+            format: int32
+          weight:
+            type: number
+            format: float
+          height:
+            type: number
+            format: float
+    AstronautUpdate:
+      in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        properties:
+          nameFirst:
+            type: string
+          nameLast:
+            type: string
+          rank:
+            type: string
+          age:
+            type: integer
+            format: int32
+          weight:
+            type: number
+            format: float
+          height:
+            type: number
+            format: float
+    LaunchVehicleCreate:
+      in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        properties:
+          name:
+            type: string
+            description: The name of this launch vehicle
+            example: Saturn V
+          description:
+            type: string
+            description: A short description of this launch vehicle
+            example: Multi-stage booster rocket
+          maxCrewWeight:
+            type: number
+            description: The maximum allowed combined weight (kg) of astronauts allocated to this launch vehicle.
+            example: 500
+            format: int32
+          maxPayloadWeight:
+            type: number
+            description: The maximum allowed weight (kg) of the payload that this launch vehicle can accommodate.
+            example: 1000
+            format: int32
+          launchVehicleWeight:
+            type: number
+            description: The weight (kg) of the the basic launch vehicle without any payload or astronauts.
+            example: 4000
+            format: int32
+          thrustCapacity:
+            type: number
+            description: The thrust capacity (N) that this launch vehicle is capable of.
+            example: 1000000
+            format: int32
+          maneuveringFuel:
+            type: number
+            description: The amount of maneuvering fuel in units that this launch vehicle always starts with.
+            example: 10
+            format: int32
+          
+    LaunchVehicleEdit:
+      in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        properties:
+          name:
+            type: string
+          description:
+            type: string
+          maxCrewWeight:
+            type: number
+            format: int32
+          maxPayloadWeight:
+            type: number
+            format: int32
+          launchVehicleWeight:
+            type: number
+            format: int32
+          thrustCapacity:
+            type: number
+            format: int32
+          maneuveringFuel:
+            type: number
+            format: int32
+    PayloadCreate:
+      type: object
+      properties:
+        description:
+          type: string
+          description: A description of the payload that is being sent up on this space mission
+          example: UNSW Cubesat
+        weight: 
+          type: number
+          description: The weight of the payload in kilograms
+          example: 400
+    LaunchCreate:
+      in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        properties:
+          launchVehicleId:
+            $ref: '#/components/prim/LaunchVehicleId'
+          payload:
+            $ref: '#/components/body/PayloadCreate'
+          launchParameters:
+            $ref: '#/components/prim/LaunchCalculationParameters'
+    LaunchStatusUpdate:
+      in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        properties:
+          action:
+            $ref: '#/components/prim/ValidStateUpdateActions'
+    MessageRequest:
+      in: body
+      name: body
+      required: true
+      schema:
+        type: object
+        properties:
+          messageRequest:
+            $ref: '#/components/prim/MessageContent'
+
+        
+  return:
+    ControlUserSessionId:
+      type: object
+      properties:
+        controlUserSessionId:
+          $ref: '#/components/prim/ControlUserSessionId'
+    Error:
+      properties:
+        error:
+          $ref: '#/components/prim/Error'
+    Empty:
+      type: object
+    ControlUser:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/group/ControlUser'
+    ControlUserSession:
+      type: object
+      properties:
+        controlUserSessionId:
+          $ref: '#/components/prim/ControlUserSessionId'
+    MissionList:
+      type: object
+      properties:
+        missions:
+          $ref: '#/components/group/SmallMissions'
+    MissionNew:
+      type: object
+      properties:
+        missionId:
+          $ref: '#/components/prim/MissionId'
+    MissionSingleIter2:
+      $ref: '#/components/group/MissionIter2'
+    MissionSingleIter3:
+      $ref: '#/components/group/MissionIter3' 
+    AstronautSingleIter2:
+      $ref: '#/components/group/AstronautIter2'
+    AstronautList:
+      type: object
+      properties:
+        astronauts:
+          $ref: '#/components/group/SmallAstronauts'
+    AstronautListIter3:
+      type: object
+      properties:
+        astronauts:
+          $ref: '#/components/group/SmallAstronautsIter3'
+    AstronautNew:
+      type: object
+      properties:
+        astronautId:
+          $ref: '#/components/prim/AstronautId'
+    LaunchVehicleNew:
+      type: object
+      properties:
+        launchVehicleId:
+          $ref: '#/components/prim/LaunchVehicleId'
+    LaunchVehicleList:
+      type: object
+      properties:
+        launchVehicles:
+          $ref: '#/components/group/SmallLaunchVehicles'
+    LaunchVehicleSingleIter3:
+      $ref: '#/components/group/LaunchVehicle'
+    LaunchSingleIter3:
+      $ref: '#/components/group/Launch'
+    LaunchNew:
+      type: object
+      properties:
+        launchId:
+          $ref: '#/components/prim/LaunchId'
+    LaunchList:
+      $ref: '#/components/group/SmallLaunches'
+    MessageResponse:
+      type: object
+      properties:
+        messageResponse:
+          type: string
+          example: The orbit distance to Earth's moon is 382,500 kilometers
+    PayloadDeployedList:
+      type: object
+      properties:
+        deployedPayloads:
+          $ref: '#/components/group/DeployedPayloads'
+          
+        
+  
+paths:
+  /v1/admin/auth/register:
+    post:
+      summary: Create a new control user
+      description: Takes in information about a new control user and registers them in the system.
+      tags:
+        # - "By Topic: Access Management"
+        - "Iteration 2 (Using Iteration 1)"
+      parameters:
+        - $ref: '#/components/body/Register'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/ControlUserSession'
+        400:
+          description: |
+            If any of the following are true:
+            - Email address is used by another user
+            - Email does not satisfy this: https://www.npmjs.com/package/validator (validator.isEmail)
+            - NameFirst contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
+            - NameFirst is less than 2 characters or more than 20 characters
+            - NameLast contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
+            - NameLast is less than 2 characters or more than 20 characters
+            - Password is less than 8 characters
+            - Password does not contain at least one number and at least one letter
+          schema:
+            $ref: '#/components/return/Error'
+      
+
+  /v1/admin/auth/login:
+    post:
+      summary: Login control user
+      parameters:
+        - $ref: '#/components/body/Login'
+      tags:
+        # - "By Topic: Access Management"
+        - "Iteration 2 (Using Iteration 1)"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/ControlUserSession'
+        400:
+          description: |
+            If any of the following are true:
+            - Email address does not exist
+            - Password is not correct for the given email
+          schema:
+            $ref: '#/components/return/Error'
+
+  /v1/admin/auth/logout:
+    post:
+      summary: Logout control user
+      description: Should be called with a controlUserSessionId that is returned after either a login or register has been made.
+      tags:
+        - "Iteration 2 (New)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+
+  /v1/admin/controluser/details:
+    get:
+      summary: Get the details of a control user.
+      description: For the given control user that is logged in, return all of the relevant details.
+      tags:
+        # - "By Topic: Access Management"
+        - "Iteration 2 (Using Iteration 1)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+      responses:
+        200:
+          description: |
+            - "name" is the first and last name concatenated with a single space between them
+            - numSuccessfulLogins includes logins direct via registration, and is counted from the moment of registration starting at 1
+            - numFailedPasswordsSinceLastLogin is reset every time they have a successful login, and simply counts the number of attempted logins that failed due to incorrect password, only since the last login
+          schema:
+            $ref: '#/components/return/ControlUser'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+    put:
+      summary: Update the details of an control user (non-password).
+      description: Given a set of properties, update those properties of this logged in control user.
+      tags:
+        # - "By Topic: Access Management"
+        - "Iteration 2 (Using Iteration 1)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/body/ControlUserDetailsUpdate'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        400:
+          description: |
+            If any of the following are true:
+            - Email is currently used by another user (excluding the current authorised user)
+            - Email does not satisfy this: https://www.npmjs.com/package/validator (validator.isEmail)
+            - NameFirst contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
+            - NameFirst is less than 2 characters or more than 20 characters
+            - NameLast contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
+            - NameLast is less than 2 characters or more than 20 characters
+          schema:
+            $ref: '#/components/return/Error'
+  
+  /v1/admin/controluser/password:
+    put:
+      summary: Update the password of this control user.
+      description: Given details relating to a password change, update the password of a logged in user.
+      tags:
+        # - "By Topic: Access Management"
+        - "Iteration 2 (Using Iteration 1)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/body/ControlUserPasswordUpdate'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        400:
+          description: |
+            If any of the following are true:
+            - Old Password is not the correct old password
+            - Old Password and New Password match exactly
+            - New Password has already been used before by this user
+            - New Password is less than 8 characters
+            - New Password does not contain at least one number and at least one letter
+          schema:
+            $ref: '#/components/return/Error'
+
+  /v1/admin/mission/list:
+    get:
+      summary: List all missions for the current control user.
+      tags:
+        # - "By Topic: Mission Management"
+        - "Iteration 2 (Using Iteration 1)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/MissionList'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+
+  /v1/admin/mission:
+    post:
+      summary: Create a new space mission
+      description: Given the basic details for a space mission, create one for the logged in control user.
+      tags:
+        # - "By Topic: Mission Management"
+        - "Iteration 2 (Using Iteration 1)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/body/MissionCreate'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/MissionNew'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        400:
+          description: |
+            If any of the following are true:
+            - Name contains invalid characters. Valid characters are alphanumeric and spaces
+            - Name is either less than 3 characters long or more than 30 characters long
+            - Name is already used by the current logged in user for another space mission
+            - Description is more than 400 characters in length (note: empty strings are OK)
+            - Target is more than 100 characters in length (note: empty strings are OK)
+          schema:
+            $ref: '#/components/return/Error'
+
+  /v1/admin/mission/{missionid}:
+    delete:
+      summary: Remove a mission
+      description: |
+       - Given a particular space mission, delete it.
+      tags:
+        # - "By Topic: Mission Management"
+        - "Iteration 2 (Using Iteration 1)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/path/MissionId'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        403:
+          description: Valid controlUserSessionId is provided, but control user is not an owner of this space mission or the space mission doesn't exist
+          schema:
+            $ref: '#/components/return/Error'
+        400:
+          description: |
+            If any of the following are true:
+            - Astronauts have been assigned to this mission.
+          schema:
+            $ref: '#/components/return/Error'
+
+    get:
+      summary: Get info about current space mission
+      description: Get all of the relevant information about the current space mission including attached astronauts.
+      tags:
+        # - "By Topic: Mission Management"
+        - "Iteration 2 (Using a modified Iteration 1)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/path/MissionId'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/MissionSingleIter3'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        403:
+          description: Valid controlUserSessionId is provided, but the control user is not an owner of this mission or the specified missionId does not exist
+          schema:
+            $ref: '#/components/return/Error'
+
+  /v1/admin/mission/{missionid}/name:
+    put:
+      summary: Update the name of the specified space mission
+      description: Given a new name for a space mission, update the name for the specified space mission
+      tags:
+        # - "By Topic: Access Management"
+        - "Iteration 2 (Using Iteration 1)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/path/MissionId'
+        - $ref: '#/components/body/MissionNameUpdate'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        403:
+          description: Valid controlUserSessionId is provided, but the control user is not an owner of this mission or the specified missionId does not exist
+          schema:
+            $ref: '#/components/return/Error'
+        400:
+          description: |
+            If any of the following are true:
+            - Name contains invalid characters. Valid characters are alphanumeric and spaces
+            - Name is either less than 3 characters long or more than 30 characters long
+            - Name is already used by the current logged in user for another quiz
+          schema:
+            $ref: '#/components/return/Error'
+
+  /v1/admin/mission/{missionid}/description:
+    put:
+      summary: Update the description of the specified space mission
+      description: Given a new description for a space mission, update the description for the specified space mission
+      tags:
+        # - "By Topic: Access Management"
+        - "Iteration 2 (Using Iteration 1)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/path/MissionId'
+        - $ref: '#/components/body/MissionDescriptionUpdate'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        403:
+          description: Valid controlUserSessionId is provided, but the control user is not an owner of this mission or the specified missionId does not exist
+          schema:
+            $ref: '#/components/return/Error'
+        400:
+          description: |
+            If any of the following are true:
+            - Description is more than 400 characters in length (note: empty strings are OK)
+          schema:
+            $ref: '#/components/return/Error'
+
+  /v1/admin/mission/{missionid}/target:
+    put:
+      summary: Update the target of the specified space mission
+      description: Given a new target for a space mission, update the target for the specified space mission
+      tags:
+        # - "By Topic: Access Management"
+        - "Iteration 2 (Using Iteration 1)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/path/MissionId'
+        - $ref: '#/components/body/MissionTargetUpdate'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        403:
+          description: Valid controlUserSessionId is provided, but the control user is not an owner of this mission or the specified missionId does not exist
+          schema:
+            $ref: '#/components/return/Error'
+        400:
+          description: |
+            If any of the following are true:
+            - Target is more than 100 characters in length (note: empty strings are OK)
+          schema:
+            $ref: '#/components/return/Error'
+
+  # /v2/admin/mission/{missionid}/transfer:
+  #   post:
+  #     summary: Transfer this mission to another control user
+  #     description: Given the email of another control user, transfer ownership of this mission to that new control user.
+  #     tags:
+  #       - "Iteration 3 (Using a modified Iteration 2)"
+  #     parameters:
+  #       - $ref: '#/components/header/ControlUserSessionId'
+  #       - $ref: '#/components/path/MissionId'
+  #       - $ref: '#/components/body/MissionTransfer'
+  #     responses:
+  #       200:
+  #         description: OK
+  #         schema:
+  #           $ref: '#/components/return/Empty'
+  #       401:
+  #         description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+  #         schema:
+  #           $ref: '#/components/return/Error'
+  #       403:
+  #         description: Valid ControlUserSessionId is provided, but control user is not an owner of this space mission or space mission doesn't exist
+  #         schema:
+  #           $ref: '#/components/return/Error'
+  #       400:
+  #         description: |
+  #           If any of the following are true:
+  #           - userEmail is not a real control user
+  #           - userEmail is the current logged in control user
+  #           - missionId refers to a space mission that has a name that is already used by the target user
+  #         schema:
+  #           $ref: '#/components/return/Error'
+
+
+  /v1/admin/astronaut/pool:
+    get:
+      summary: See the current pool of astronauts in our system.
+      tags:
+        # - "By Topic: Astronaut Management"
+        - "Iteration 2 (New)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+      responses:
+        200:
+          description: A list of astronauts with names and ranks and if they are assigned or not
+          schema:
+            $ref: '#/components/return/AstronautListIter3'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+
+
+  /v1/admin/astronaut:
+    post:
+      summary: Add an astronaut to the pool of candidates for our space missions.
+      description: Given the basic details, create a new astronaut. As astronaut does not belong to any specific controlUser.
+      tags:
+        # - "By Topic: Astronaut Management"
+        - "Iteration 2 (New)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/body/AstronautCreate'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/AstronautNew'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        400:
+          description: |
+            If any of the following are true:
+            - Another Astronaut already exists with the same nameFirst and nameLast
+            - NameFirst contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
+            - NameFirst is less than 2 characters or more than 20 characters
+            - NameLast contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
+            - NameLast is less than 2 characters or more than 20 characters
+            - Rank is less than 5 characters or more than 50 characters
+            - Rank contains characters other than lowercase letters, uppercase letters, spaces, hyphens, round brackets or apostrophes
+            - Age < 20 or > 60
+            - Weight (measured in kgs at Earth gravity) > 100
+            - Height (measured in cms) < 150 or > 200 
+          schema:
+            $ref: '#/components/return/Error'
+
+  /v1/admin/astronaut/{astronautid}:
+    delete:
+      summary: Remove an astronaut
+      description: |
+       - Given a particular astronaut, remove them from the astronaut pool.
+      tags:
+        # - "By Topic: Astronaut Management"
+        - "Iteration 2 (New)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/path/AstronautId'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        400:
+          description: |
+            If any of the following are true:
+            - astronautid is invalid
+            - The astronaut is currently assigned to a mission.
+          schema:
+            $ref: '#/components/return/Error'
+
+    get:
+      summary: Get info about an astronaut in the astronaut pool.
+      description: Get all of the relevant information about the current astronaut including assigned missions.
+      tags:
+        # - "By Topic: Astronaut Management"
+        - "Iteration 2 (New)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/path/AstronautId'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/AstronautSingleIter2'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        400:
+          description: |
+           Any of the following errors:
+           - astronautid is invalid
+    put:
+      summary: Edit an astronaut currently in the pool.
+      description: Given the new basic details, edit the details of that astronaut.
+      tags:
+        # - "By Topic: Astronaut Management"
+        - "Iteration 2 (New)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/path/AstronautId'
+        - $ref: '#/components/body/AstronautCreate'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        400:
+          description: |
+            If any of the following are true:
+            - astornautid is invalid
+            - Another Astronaut already exists with the same nameFirst and nameLast
+            - NameFirst contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
+            - NameFirst is less than 2 characters or more than 20 characters
+            - NameLast contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
+            - NameLast is less than 2 characters or more than 20 characters
+            - Rank is less than 5 characters or more than 50 characters
+            - Rank contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
+            - Age < 20 or > 60
+            - Weight (measured in kgs at Earth gravity) > 100
+            - Height (measured in cms) < 150 or > 200 
+          schema:
+            $ref: '#/components/return/Error'
+
+  /v1/admin/launchvehicle/list:
+    get:
+      summary: List all launch vehicles
+      description: |
+        Show all launch vehicles that are not retired currently in our system along with their assigned statuses
+      tags:
+        # - "By Topic: Astronaut Management"
+        - "Iteration 3 (New)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/LaunchVehicleList'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+  /v1/admin/launchvehicle:
+    post:
+      summary: Add a new launch vehicle to our available launch vehicles 
+      description: Given the basic details, create a new launch vehicle. A launch vehicle does not belong to any specific controlUser.
+      tags:
+        # - "By Topic: Astronaut Management"
+        - "Iteration 3 (Example Adaptation targets)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/body/LaunchVehicleCreate'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/LaunchVehicleNew'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        400:
+          description: |
+            If any of the following are true:
+            - Name contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
+            - Name is less than 2 characters or more than 20 characters
+            - Description contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
+            - Description is less than 2 characters or more than 50 characters
+            - maximumCrewWeight < 100 or > 1000
+            - maximumPayloadWeight < 100 or > 1000
+            - launchVehicleWeight < 1000 or > 100000
+            - thrustCapacity < 100000 or > 10000000
+            - maneuveringFuel < 10 or > 100 
+          schema:
+            $ref: '#/components/return/Error'
+
+  /v1/admin/launchvehicle/{launchvehicleid}:
+    delete:
+      summary: Retire a launch vehicle
+      description: |
+       - Given a particular launch vehicle, remove it from the list of available launch vehicles by setting its retired status to true.
+      tags:
+        # - "By Topic: Astronaut Management"
+        - "Iteration 3 (New)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/path/LaunchVehicleId'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        400:
+          description: |
+            If any of the following are true:
+            - launchvehicleid is invalid
+            - The Launch Vehicle is currently assigned to an active launch (a launch which is not in the state: ON_EARTH)
+          schema:
+            $ref: '#/components/return/Error'
+
+    get:
+      summary: Get info about a launch vehicle.
+      description: Get all of the relevant information about the current launch vehicle including launch history.
+      tags:
+        # - "By Topic: Astronaut Management"
+        - "Iteration 3 (Example Adaptation targets)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/path/LaunchVehicleId'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/group/LaunchVehicle'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        400:
+          description: |
+           Any of the following errors:
+           - launchvehicleid is invalid
+    put:
+      summary: Edit an existing launch vehicle.
+      description: Given the new basic details, edit the details of that launch vehicle.
+      tags:
+        # - "By Topic: Astronaut Management"
+        - "Iteration 3 (New)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/path/LaunchVehicleId'
+        - $ref: '#/components/body/LaunchVehicleCreate'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        400:
+          description: |
+            If any of the following are true:
+            - launchvehicleid is invalid
+            - The Launch Vehicle is currently allocated to an active launch (a launch which is not in the state: ON_EARTH).
+            - Name contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
+            - Name is less than 2 characters or more than 20 characters
+            - Description contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
+            - Description is less than 2 characters or more than 50 characters
+            - maximumCrewWeight < 100 or > 1000
+            - maximumPayloadWeight < 100 or > 1000
+            - launchVehicleWeight < 1000 or > 100000
+            - thrustCapacity < 100000 or > 10000000
+            - maneuveringFuel < 10 or > 100 
+          schema:
+            $ref: '#/components/return/Error'
+  /v1/admin/launch/list:
+      get:
+        summary: List all launches
+        description: |
+          Show all launches that are currently active  or inactive
+        tags:
+          # - "By Topic: Astronaut Management"
+          - "Iteration 3 (New)"
+        parameters:
+          - $ref: '#/components/header/ControlUserSessionId'
+        responses:
+          200:
+            description: OK
+            schema:
+              $ref: '#/components/return/LaunchList'
+          401:
+            description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+            schema:
+              $ref: '#/components/return/Error'
+
+  /v1/admin/mission/{missionid}/launch:
+    post:
+      summary: Organise a launch based on a space mission
+      description: Given the basic details, create a new launch. A launch is associated to a particular space mission and the specific controlUser who is in charge of that mission.
+      tags:
+        # - "By Topic: Astronaut Management"
+        - "Iteration 3 (Example Adaptation targets)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/path/MissionId'
+        - $ref: '#/components/body/LaunchCreate'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/LaunchNew'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        403:
+          description: MissionId is empty, invalid or not associated with the current controlUser
+        400:
+          description: |
+            If any of the following are true:
+            - launchvehicleid is invalid
+            - launchvehicleid is currently in another active launch (a launch which is not in the state: ON_EARTH).
+            - launchvehicleid refers to a Launch Vehicle that is 'retired'
+            - Payload description is empty or greater than 400 characters
+            - Payload weight is greater than the maximum payload weight for the launch vehicle
+            - Any LaunchCalculationParameters is < 0
+            - manueveringDelay is < 1
+            - fuelBurnRate > thrustFuel
+            - An initial calculation with these LaunchCalculationParameters are invalid.
+            
+          schema:
+            $ref: '#/components/return/Error'
+  
+  /v1/admin/mission/{missionid}/launch/{launchid}:
+    get:
+      summary: Get the current details of the launch
+      description: Show all the relevant details about a launch
+      tags:
+        - "Iteration 3 (Example Adaptation targets)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/path/MissionId'
+        - $ref: '#/components/path/LaunchId'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/group/Launch'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        403:
+          description: MissionId is empty, invalid or not associated with the current controlUser
+        400:
+          description: |
+            If any of the following are true:
+            - Invalid launchid
+  /v1/admin/mission/{missionid}/launch/{launchid}/status:
+    put:
+      summary: Update the status of the launch based on an input action
+      description: Given an action, execute a state transition in the launch.
+      tags:
+        # - "By Topic: Astronaut Management"
+        - "Iteration 3 (Example Adaptation targets)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/path/MissionId'
+        - $ref: '#/components/path/LaunchId'
+        - $ref: '#/components/body/LaunchStatusUpdate'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        403:
+          description: MissionId is empty, invalid or not associated with the current controlUser
+        400:
+          description: |
+            If any of the following are true:
+            - Invalid launchid
+            - An invalid action has been used for the current status
+            - A LIFTOFF action has been attempted with bad launch parameters - also trigger a FAULT
+            - A CORRECTION action been attempted with insufficient fuel available - also trigger a FAULT
+            - A FIRE_THRUSTERS action been attempted with insufficient fuel available - also trigger a FAULT
+          schema:
+            $ref: '#/components/return/Error'
+  /v1/admin/mission/{missionid}/launch/{launchid}/allocate/{astronautid}:
+    post:
+      summary: Allocate an astronaut to a launch.
+      tags:
+        # - "By Topic: Mission Management"
+        - "Iteration 3 (New)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/path/AstronautId'
+        - $ref: '#/components/path/MissionId'
+        - $ref: '#/components/path/LaunchId'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        403:
+          description: Valid controlUserSessionId is provided, but the control user is not an owner of this mission or the specified missionId does not exist
+          schema:
+            $ref: '#/components/return/Error'
+        400:
+          description: |
+            If any of the following are true:
+            - astronautid is invalid
+            - launchid is invalid
+            - The astronaut has not been assigned to the current mission.
+            - The astronaut is already allocated to another launch that has not ended (not in the ON_EARTH state)
+            - The total weight of all allocated astronauts including this astronaut would exceed the maxCrewWeight of the launchVehicle for this launch
+          schema:
+            $ref: '#/components/return/Error'
+            
+    delete:
+      summary: Remove an astronaut from a launch.
+      tags:
+        # - "By Topic: Mission Management"
+        - "Iteration 3 (New)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/path/AstronautId'
+        - $ref: '#/components/path/MissionId'
+        - $ref: '#/components/path/LaunchId'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        403:
+          description: Valid controlUserSessionId is provided, but the control user is not an owner of this mission or the specified missionId does not exist
+          schema:
+            $ref: '#/components/return/Error'
+        400:
+          description: |
+            If any of the following are true:
+            - astroanutid is invalid
+            - launchid is invalid
+            - The astronaut not allocated to this launch.
+            - The launch has started and is still in progress (launch state is not READY_TO_LAUNCH or ON_EARTH)
+          schema:
+            $ref: '#/components/return/Error'
+
+  /v1/admin/mission/{missionid}/assign/{astronautid}:
+    post:
+      summary: Assign an astronaut to a space mission.
+      tags:
+        # - "By Topic: Mission Management"
+        - "Iteration 2 (New)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/path/AstronautId'
+        - $ref: '#/components/path/MissionId'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        403:
+          description: Valid controlUserSessionId is provided, but the control user is not an owner of this mission or the specified missionId does not exist
+          schema:
+            $ref: '#/components/return/Error'
+        400:
+          description: |
+            If any of the following are true:
+            - astronautid is invalid
+            - The astronaut is already assigned to another mission
+          schema:
+            $ref: '#/components/return/Error'
+            
+    delete:
+      summary: Un-assign an astronaut from a space mission.
+      tags:
+        # - "By Topic: Mission Management"
+        - Iteration 2 (New)
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/path/AstronautId'
+        - $ref: '#/components/path/MissionId'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        403:
+          description: Valid controlUserSessionId is provided, but the control user is not an owner of this mission or the specified missionId does not exist
+          schema:
+            $ref: '#/components/return/Error'
+        400:
+          description: |
+            If any of the following are true:
+            - astroanutid is invalid
+            - The astronaut not assigned to this space mission.
+          schema:
+            $ref: '#/components/return/Error'
+            
+  /v2/admin/mission/{missionid}/assign/{astronautid}:
+    delete:
+      summary: Un-assign an astronaut from a space mission.
+      tags:
+        # - "By Topic: Mission Management"
+        - Iteration 3 (Using a modified Iteration 2)
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+        - $ref: '#/components/path/AstronautId'
+        - $ref: '#/components/path/MissionId'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+        403:
+          description: Valid controlUserSessionId is provided, but the control user is not an owner of this mission or the specified missionId does not exist
+          schema:
+            $ref: '#/components/return/Error'
+        400:
+          description: |
+            If any of the following are true:
+            - astroanutid is invalid
+            - The astronaut not assigned to this space mission.
+            - The astronaut is allocated to a launch (NEW ERROR)
+          schema:
+            $ref: '#/components/return/Error'
+  /clear:
+    delete:
+      summary: Remove all data in the program
+      tags:
+        # - "By Topic: Data Layer"
+        - "Iteration 2 (Using Iteration 1)"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
+  
+  /v1/admin/astronaut/{astronautid}/llmchat:
+    post:
+      summary: Allow and astronaut to send messages to an LLM chatbot.
+      tags:
+        # - "By Topic: Mission Management"
+        - "Iteration 3 (Bonus)"
+      parameters:
+        - $ref: '#/components/path/AstronautId'
+        - $ref: '#/components/body/MessageRequest'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/MessageResponse'
+        400:
+          description: |
+            If any of the following are true:
+            - astronautid is invalid
+            - The astronaut is not currently in an active launch (a launch which is not in the state: ON_EARTH).
+          schema:
+            $ref: '#/components/return/Error'
+            
+    get:
+      summary: Retrieve the entire message history for the Astronaut
+      tags:
+        # - "By Topic: Mission Management"
+        - "Iteration 3 (Bonus)"
+      parameters:
+        - $ref: '#/components/path/AstronautId'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/prim/MessageList'
+        400:
+          description: |
+            If any of the following are true:
+            - astroanutid is invalid
+            - The astronaut is not currently in an active launch (a launch which is not in the state: ON_EARTH).
+          schema:
+            $ref: '#/components/return/Error'
+            
+  /v1/admin/payload/deployedList:          
+    get:
+      summary: Retrieve the current relative position of all deployed payloads.
+      tags:
+        # - "By Topic: Mission Management"
+        - "Iteration 3 (Bonus)"
+      parameters:
+        - $ref: '#/components/header/ControlUserSessionId'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/PayloadDeployedList'
+        401:
+          description: ControlUserSessionId is empty or invalid (does not refer to valid logged in user session)
+          schema:
+            $ref: '#/components/return/Error'
+
+  /v1/admin/simulation/{simulationid}:
+    get:
+      summary: 📊 Get Simulation Status and Report
+      description: |
+        Retrieves the status and results of a specific simulation run
+        using the simulationId provided by the POST endpoint.
+        
+        - If 'status' is 'RUNNING', the 'progress' field will be present.
+        - If 'status' is 'COMPLETE', the 'report' field will be present.
+      tags:
+        - "Iteration 3 (New)"
+      parameters:
+        - in: header
+          name: controlUserSessionId
+          required: true
+          schema:
+            type: string
+            example: "session12345"
+        - in: path
+          name: simulationid
+          required: true
+          schema:
+            type: integer
+            example: 114
+      responses:
+        '200':
+          description: OK - Returns the simulation status or the final report.
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: The current status of the simulation.
+                enum: [ "RUNNING", "COMPLETE" ]
+                example: "COMPLETE"
+              progress:
+                type: number
+                format: float
+                description: "(Optional) The completion progress (0.0 to 1.0) if status is 'RUNNING'."
+                example: 0.65
+              report:
+                type: object
+                description: "(Optional) The final report object if status is 'COMPLETE'."
+                properties:
+                  successRate:
+                    type: number
+                    format: float
+                    example: 0.975
+                  failureReport:
+                    type: object
+                    properties:
+                      FAULT_DURING_LIFTOFF:
+                        type: integer
+                        example: 10
+                      FAULT_DURING_MANEUVERING:
+                        type: integer
+                        example: 12
+                      INSUFFICIENT_FUEL:
+                        type: integer
+                        example: 3
+                  summaryMessage:
+                    type: string
+                    example: "Simulation complete. 97.5% success rate..."
+        '401':
+          description: Unauthorized (Invalid controlUserSessionId).
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Invalid session."
+        '403':
+          description: Forbidden (User did not create this simulation).
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "User does not have access to this simulation."
+        '404':
+          description: Not Found (Invalid simulationId).
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Simulation ID not found."
+
+  /v1/admin/mission/{missionid}/simulate:
+    post:
+      summary: 🚀 Start an Advanced Mission Risk Simulation
+      description: |
+        Creates and starts a new Monte Carlo simulation run for a given mission.
+        This request is asynchronous and returns a simulationId immediately. 
+        Use the GET /v1/admin/simulation/{simulationid} endpoint to check status and retrieve results.
+      tags:
+        - "Iteration 3 (New)"
+      parameters:
+        - in: header
+          name: controlUserSessionId
+          required: true
+          schema:
+            type: string
+            example: "session12345"
+        - in: path
+          name: missionid
+          required: true
+          schema:
+            type: integer
+            example: 514
+      requestBody:
+        description: Configuration for the simulation run.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                numRuns:
+                  type: integer
+                  description: The number of simulation iterations to run.
+                  example: 1000
+                riskFactors:
+                  type: object
+                  description: (Optional) Probabilities (0.0 to 1.0) for failure events.
+                  properties:
+                    engineFailureChance:
+                      type: number
+                      format: float
+                      example: 0.02
+                    fuelLeakChance:
+                      type: number
+                      format: float
+                      example: 0.01
+      responses:
+        '202':
+          description: Accepted - The simulation has been queued. Returns the ID for polling.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  simulationId:
+                    type: integer
+                    example: 42
+        '400':
+          description: Bad Request (e.g., mission missing launch parameters).
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Mission must have launch parameters configured before simulation."
+        '401':
+          description: Unauthorized (Invalid controlUserSessionId).
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Invalid session."
+        '403':
+          description: Forbidden (User does not own this mission).
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "User does not own this mission."
