@@ -1,4 +1,4 @@
-import { LaunchInput, LaunchCalcParameters } from '../../codeToAdapt/src/newInterfaces';
+import { LaunchInput } from '../../src/dataStore';
 
 export const sampleUser1 = {
   nameFirst: 'fnameOne',
@@ -52,7 +52,7 @@ export const sampleLaunchVehicle2 = {
   launchVehicleWeight: 3999,
   thrustCapacity: 999999,
   maneuveringFuel: 11
-}
+};
 
 export const sampleLaunchVehicle3 = {
   name: 'Chris Li',
@@ -62,7 +62,7 @@ export const sampleLaunchVehicle3 = {
   launchVehicleWeight: 3999,
   thrustCapacity: 999999,
   maneuveringFuel: 11
-}
+};
 
 export const sampleLaunchVehicle4 = {
   name: 'Chris Li!@#',
@@ -72,7 +72,7 @@ export const sampleLaunchVehicle4 = {
   launchVehicleWeight: 3999,
   thrustCapacity: 999999,
   maneuveringFuel: 11
-}
+};
 
 export const sampleLaunch1: LaunchInput = {
   launchVehicleId: -1,
