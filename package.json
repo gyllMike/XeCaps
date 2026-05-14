@@ -7,7 +7,7 @@
         "start": "ts-node -T src/server.ts",
         "start-dev": "ts-node-dev src/server.ts",
         "start-coverage": "nyc --reporter=text --reporter=lcov ts-node src/server.ts",
-        "cleanup-sync-request": "node -e \"try{require('child_process').execSync('pkill -f node_modules/sync-rpc/lib/worker.js',{stdio:'ignore'})}catch{}\"",
+        "cleanup-sync-request": "node scripts/cleanupSyncRequest.js",
         "posttest": "npm run cleanup-sync-request"
     },
     "dependencies": {
