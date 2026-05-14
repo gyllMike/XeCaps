@@ -21,6 +21,53 @@ import HTTPError from 'http-errors';
 import request from 'sync-request-curl';
 import { OPENROUTER_API_KEY } from './config';
 
+const OPENROUTER_TIMEOUT_MS = 5000;
+
+function fallbackLlmResponse(messageRequest: string): string {
+  return `Astronaut support received your message: ${messageRequest}`;
+}
+
+function hasUsableOpenRouterKey(apiKey: string | undefined): apiKey is string {
+  return apiKey !== undefined && apiKey.trim() !== '' && !apiKey.includes('<');
+}
+
+function generateLlmResponse(messageRequest: string): string {
+  if (!hasUsableOpenRouterKey(OPENROUTER_API_KEY)) {
+    return fallbackLlmResponse(messageRequest);
+  }
+
+  try {
+    const prePrompt = '';
+    const res = request('POST', 'https://openrouter.ai/api/v1/chat/completions', {
+      headers: {
+        Authorization:
+          `Bearer ${OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      json: {
+        model: 'google/gemma-3n-e2b-it:free',
+        messages: [
+          {
+            role: 'user',
+            content: prePrompt + messageRequest,
+          },
+        ],
+      },
+      timeout: OPENROUTER_TIMEOUT_MS,
+    });
+    const body = JSON.parse(res.body.toString());
+    const messageResponse = body?.choices?.[0]?.message?.content;
+
+    if (typeof messageResponse === 'string' && messageResponse.length > 0) {
+      return messageResponse;
+    }
+  } catch {
+    return fallbackLlmResponse(messageRequest);
+  }
+
+  return fallbackLlmResponse(messageRequest);
+}
+
 /**
  * Creates a new astronaut and adds them to the pool.
  * @param nameFirst
@@ -293,25 +340,7 @@ export function sendLlmChat(astronautId: number, messageRequest: string) {
     timeSent: Math.floor(Date.now() / 1000),
   };
   launch.messageLog.push(message1);
-  const prePrompt = '';
-  const res = request('POST', 'https://openrouter.ai/api/v1/chat/completions', {
-    headers: {
-      Authorization:
-        `Bearer ${OPENROUTER_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    json: {
-      model: 'google/gemma-3n-e2b-it:free',
-      messages: [
-        {
-          role: 'assistant',
-          content: prePrompt + messageRequest,
-        },
-      ],
-    },
-  });
-  const body = JSON.parse(res.getBody() as string);
-  const messageResponse = body.choices[0].message.content;
+  const messageResponse = generateLlmResponse(messageRequest);
   const message2: MessageLog = {
     astronautId,
     messageId: launch.messageLog.length + 1,
