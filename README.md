@@ -94,6 +94,8 @@ Run the backend server in development mode:
 npm run start-dev
 ```
 
+This terminal should stay open while the server is running.
+
 ### 4. Open the API documentation
 
 After the server starts, open the Swagger documentation in your browser:
@@ -101,6 +103,8 @@ After the server starts, open the Swagger documentation in your browser:
 ```
 http://127.0.0.1:3200/docs
 ```
+
+To run tests or send requests while the server is running, open a second terminal in the same project directory.
 
 ---
 
