@@ -1,23 +1,19 @@
 {
-  "compilerOptions": {
-    "esModuleInterop": true,
-    "noImplicitAny": true,
-    "noEmit": true,
-    "resolveJsonModule": true,
-    "allowJs": true,
-    "target": "es2015",
-    "module": "commonjs",
-    "types": ["jest", "node"]
-  },
-
-  "include": [
-    "src/**/*.ts",
-    "tests/**/*.ts"
-  ],
-
-  "exclude": [
-    "node_modules",
-    "codeToAdapt/**/*",
-    "**/*_broken.ts"
-  ]
+    "compilerOptions": {
+      "strict": false,
+      "esModuleInterop": true,
+      "noImplicitAny": true,
+      "noEmit": true,
+      "resolveJsonModule": true,
+      "allowJs": true,
+      "target": "es2015",
+      "module": "commonjs"
+    },
+    "include": [
+      "src/**/*.ts"
+    ],
+    "exclude": [
+      "node_modules",
+      "**/**_broken.ts"
+    ]
 }
