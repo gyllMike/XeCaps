@@ -13,9 +13,6 @@
     ],
     "exclude": [
       "node_modules",
-      "codeToAdapt/**/*",
-      "tests/http/requestHelpers.ts",
-      "tests/http/adminMissionTransfer.test.ts",
       "**/**_broken.ts"
     ]
 }
