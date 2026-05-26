@@ -9,15 +9,15 @@ import crypto from 'crypto';
 import HTTPError from 'http-errors';
 
 /**
-  * Given the email, password and name to registers a mission control user and returns the generated controlUserId.
+  * Registers a new mission control user and creates an authenticated user session.
   *
-  * @param {string} email - The email address that the controlUser uses to register
-  * @param {string} password - The password that the controlUser sets to register and later logins
-  * @param {string} nameFirst - The first name of the controlUser
-  * @param {string} nameLast - The last name of the controlUser
+  * @param email - The email address that the controlUser uses to register
+  * @param password - The password that the controlUser sets to register and later logins
+  * @param nameFirst - The first name of the controlUser
+  * @param nameLast - The last name of the controlUser
   *
-  * @returns { controlUserSessionId: string } - Successful case: when register successfully
-  * @throws {HTTPError} 400 - Error case: bad input
+  * @returns An object containing the generated controlUserSessionId if the controlUser is successfully registered.
+  * @throws {HTTPError} 400 - Error case: if the email, name or password is invalid.
 */
 export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): { controlUserSessionId: string } {
   // check email validity
@@ -70,14 +70,13 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
 }
 
 /**
-  * Given the email, password and name to registers a mission control user and returns the generated controlUserId.
+  * Logs in an existing mission control user and creates an authenticated user session.
   *
-  * @param {string} email - The email address that use to login
-  * @param {string} password - The password use to login
+  * @param email - The email address that the controlUser uses to log in
+  * @param password - The password that the controlUser uses to log in
   *
-  * @returns { controlUserId: number } - Successful case: when login successfully
-  * @returns { error: 'Wrong password', errorCategory: errorCategories.BAD_INPUT } - Error case: when password is incorrect
-  * @returns { error: 'Email does not exist', errorCategory: errorCategories.BAD_INPUT } - Error case: when the email not exist
+  * @returns An object containing the generated controlUserSessionId if the controlUser is successfully logged in.
+  * @throws {HTTPError} 400 - Error case: if no user is found, the email does not exist, or the password is incorrect.
 */
 export function adminAuthLogin(email: string, password: string): { controlUserSessionId: string } {
   const data = getData();
@@ -118,21 +117,12 @@ export function adminAuthLogin(email: string, password: string): { controlUserSe
 }
 
 /**
-  * <Checking Error input of control user id, and return full details of control user>
+  * Returns the full details of an existing mission control user.
   *
-  * @param {NUMBER} controlUserId - The ID of user, return in random number
+  * @param controlUserId - The unique identifier of the controlUser
   *
-  * @returns { user :
-  *  {
-  *   controlUserId: find_userId.controlUserId,
-  *    name: `${find_userId.nameFirst} ${find_userId.nameLast}`,
-  *    email: find_userId.email,
-  *    numSuccessfulLogins: find_userId.numSuccessfulLogins,
-  *   numFailedPasswordsSinceLastLogin: find_userId.numFailedPasswordsSinceLastLogin,
-  *  }
-  * }
-  * @returns {401, 'Wrong ControlUserId'} when controluserid in is error
-  * return a valid details of specific control user
+  * @returns An object containing the controlUser's id, name, email, successful login count and failed password count.
+  * @throws {HTTPError} 401 - Error case: if the controlUserId is invalid.
 */
 export function adminControlUserDetails(controlUserId: number): {user:
     {
@@ -161,18 +151,18 @@ export function adminControlUserDetails(controlUserId: number): {user:
 }
 
 /**
- * Updates the details of an existing mission control user.
- *
- * @param { string } controlUserId - The unique identifier of the mission control user.
- * @param { string } email - The new email address for the mission control user.
- * @param { string } nameFirst - The new first name of the mission control user.
- * @param { string } nameLast - The new last name of the mission control user.
- *
- * @returns { } - Successful case: when the details are updated successfully.
- * @returns {{ error: string, errorCategory: 'BAD_INPUT' }} - Error case: invalid email or name input.
- * @returns {{ error: string, errorCategory: 'INVALID_CREDENTIALS' }} - Error case: invalid controlUserId.
- */
-export function adminControlUserDetailsUpdate(controlUserId: number, email: string, nameFirst: string, nameLast: string): Record <string, never> | {error: string; errorCategory: string} {
+  * Updates the email and name details of an existing mission control user.
+  *
+  * @param controlUserId - The unique identifier of the controlUser
+  * @param email - The new email address for the controlUser
+  * @param nameFirst - The new first name of the controlUser
+  * @param nameLast - The new last name of the controlUser
+  *
+  * @returns An empty object if the controlUser details are successfully updated.
+  * @throws {HTTPError} 400 - Error case: if the email or name is invalid.
+  * @throws {HTTPError} 401 - Error case: if the controlUserId is invalid.
+*/
+export function adminControlUserDetailsUpdate(controlUserId: number, email: string, nameFirst: string, nameLast: string): Record<string, never> {
   const data = getData();
 
   const user = data.missionControlUsersArray.find(
@@ -200,17 +190,17 @@ export function adminControlUserDetailsUpdate(controlUserId: number, email: stri
 }
 
 /**
- * Updates the password of an existing mission control user.
- *
- * @param { string } controlUserId - The unique identifier of the mission control user.
- * @param { string } oldPassword - The user's current password to verify identity.
- * @param { string } newPassword - The new password to be set for the user.
- *
- * @returns { } - Successful case: when the password is updated successfully.
- * @returns {{ error: string, errorCategory: 'INVALID_CREDENTIALS' }} - Error case: invalid controlUserId.
- * @returns {{ error: string, errorCategory: 'BAD_INPUT' }} - Error case: invalid password input, including wrong old password, reused new password, or identical old and new passwords.
- */
-export function adminControlUserPasswordUpdate(controlUserId: number, oldPassword: string, newPassword: string): Record <string, never> | { error: string, errorCategory: string } {
+  * Updates the password of an existing mission control user.
+  *
+  * @param controlUserId - The unique identifier of the controlUser
+  * @param oldPassword - The current password of the controlUser
+  * @param newPassword - The new password to be set for the controlUser
+  *
+  * @returns An empty object if the controlUser password is successfully updated.
+  * @throws {HTTPError} 400 - Error case: if the old password is incorrect, the new password is invalid, matches the old password, or has already been used.
+  * @throws {HTTPError} 401 - Error case: if the controlUserId is invalid.
+*/
+export function adminControlUserPasswordUpdate(controlUserId: number, oldPassword: string, newPassword: string): Record<string, never> {
   const data = getData();
 
   if (oldPassword === newPassword) {
@@ -253,12 +243,14 @@ export function adminControlUserPasswordUpdate(controlUserId: number, oldPasswor
 }
 
 /**
- * Logs out the user
- * @param controlUserSessionId - The session ID of the user to log out.
- * @returns An empty object on success, or an error object.
- */
-
-export function adminAuthLogout(controlUserSessionId: string): Record<string, never> | { error: string, errorCategory: string } {
+  * Logs out an authenticated mission control user session.
+  *
+  * @param controlUserSessionId - The session ID of the controlUser to log out
+  *
+  * @returns An empty object if the controlUser is successfully logged out.
+  * @throws {HTTPError} 401 - Error case: if the controlUserSessionId is invalid.
+*/
+export function adminAuthLogout(controlUserSessionId: string): Record<string, never> {
   const data: DataStore = getData();
   const findIdx = data.controlUserSessionsArray.findIndex(i => i.controlUserSession.controlUserSessionId === controlUserSessionId);
   if (findIdx === -1) throw HTTPError(401, 'Invalid session');

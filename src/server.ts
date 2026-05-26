@@ -17,8 +17,6 @@ import config from './config.json';
 
 // import your logic calls - add further items as required
 import { echo } from './newecho';
-
-// import { adminMissionTransfer } from './missionTransferExample';
 import {
   adminAuthRegister,
   adminAuthLogin,

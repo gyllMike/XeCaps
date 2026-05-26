@@ -23,14 +23,35 @@ import { OPENROUTER_API_KEY } from './config';
 
 const OPENROUTER_TIMEOUT_MS = 5000;
 
+/**
+  * Creates a fallback response for an astronaut chatbot message.
+  *
+  * @param messageRequest - The message sent by the astronaut
+  *
+  * @returns A fallback chatbot response containing the original astronaut message.
+*/
 function fallbackLlmResponse(messageRequest: string): string {
   return `Astronaut support received your message: ${messageRequest}`;
 }
 
+/**
+  * Checks whether an OpenRouter API key is configured and usable.
+  *
+  * @param apiKey - The OpenRouter API key to check
+  *
+  * @returns True if the API key is present and usable, otherwise false.
+*/
 function hasUsableOpenRouterKey(apiKey: string | undefined): apiKey is string {
   return apiKey !== undefined && apiKey.trim() !== '' && !apiKey.includes('<');
 }
 
+/**
+  * Generates a chatbot response for an astronaut message.
+  *
+  * @param messageRequest - The message sent by the astronaut
+  *
+  * @returns The generated chatbot response, or a fallback response if the LLM request is unavailable.
+*/
 function generateLlmResponse(messageRequest: string): string {
   if (!hasUsableOpenRouterKey(OPENROUTER_API_KEY)) {
     return fallbackLlmResponse(messageRequest);
@@ -69,15 +90,20 @@ function generateLlmResponse(messageRequest: string): string {
 }
 
 /**
- * Creates a new astronaut and adds them to the pool.
- * @param nameFirst
- * @param nameLast
- * @param rank
- * @param age
- * @param weight
- * @param height
- * @returns An object containing the new astronaut's ID, or an error object.
- */
+  * Creates a new astronaut and adds them to the astronaut pool.
+  *
+  * @param sessionId - The session ID of the controlUser creating the astronaut
+  * @param nameFirst - The first name of the astronaut
+  * @param nameLast - The last name of the astronaut
+  * @param rank - The rank of the astronaut
+  * @param age - The age of the astronaut
+  * @param weight - The weight of the astronaut
+  * @param height - The height of the astronaut
+  *
+  * @returns An object containing the generated astronautId if the astronaut is successfully created.
+  * @throws {HTTPError} 400 - Error case: if the name or astronaut details are invalid, or the astronaut already exists.
+  * @throws {HTTPError} 401 - Error case: if the sessionId is invalid.
+*/
 export function astronautCreate(
   sessionId: string,
   nameFirst: string,
@@ -86,7 +112,7 @@ export function astronautCreate(
   age: number,
   weight: number,
   height: number
-): { astronautId: number } | { error: string; errorCategory: string } {
+): { astronautId: number } {
   findControlUserIdFromSessionId(sessionId);
   if (!nameValidity(nameFirst, nameLast)) {
     throw HTTPError(400, 'Invalid nameFirst or nameLast.');
@@ -128,9 +154,10 @@ export function astronautCreate(
 }
 
 /**
- * Returns a list of all astronauts in the pool.
- * @returns An object containing a list of all astronauts.
- */
+  * Returns a list of all astronauts in the astronaut pool.
+  *
+  * @returns An object containing each astronaut's id, designation and assignment status.
+*/
 export function astronautPoolList(): { astronauts: AstronautListItem[] } {
   const data = getData();
   const astronauts = data.astronautsArray.map((i) => {
@@ -149,14 +176,19 @@ export function astronautPoolList(): { astronauts: AstronautListItem[] } {
 }
 
 /**
- * Removes an astronaut from the pool.
- * @param astronautId The ID of the astronaut to remove.
- * @returns An empty object on success, or an error object.
- */
+  * Removes an astronaut from the astronaut pool.
+  *
+  * @param sessionId - The session ID of the controlUser removing the astronaut
+  * @param astronautId - The unique identifier of the astronaut
+  *
+  * @returns An empty object if the astronaut is successfully removed.
+  * @throws {HTTPError} 400 - Error case: if the astronautId is invalid or the astronaut is currently assigned.
+  * @throws {HTTPError} 401 - Error case: if the sessionId is invalid.
+*/
 export function astronautRemove(
   sessionId: string,
   astronautId: number
-): Record<string, never> | { error: string; errorCategory: string } {
+): Record<string, never> {
   findControlUserIdFromSessionId(sessionId);
   // Check if astronautId is valid
   const astronautExists = findAstronautById(astronautId);
@@ -181,17 +213,19 @@ export function astronautRemove(
 }
 
 /**
- * Edits the details of an existing astronaut.
- * @param astronautId
- * @param nameFirst
- * @param nameLast
- * @param rank
- * @param age
- * @param weight
- * @param height
- * @returns An empty object on success, or an error object.
- * @returns eRROR
- */
+  * Updates the details of an existing astronaut.
+  *
+  * @param astronautId - The unique identifier of the astronaut
+  * @param nameFirst - The new first name of the astronaut
+  * @param nameLast - The new last name of the astronaut
+  * @param rank - The new rank of the astronaut
+  * @param age - The new age of the astronaut
+  * @param weight - The new weight of the astronaut
+  * @param height - The new height of the astronaut
+  *
+  * @returns An empty object if the astronaut details are successfully updated.
+  * @throws {HTTPError} 400 - Error case: if the astronautId, name or astronaut details are invalid, or the updated name is already used.
+*/
 export function astronautDetailUpdate(
   astronautId: number,
   nameFirst: string,
@@ -200,7 +234,7 @@ export function astronautDetailUpdate(
   age: number,
   weight: number,
   height: number
-): Record<string, never> | { error: string; errorCategory: string } {
+): Record<string, never> {
   const data = getData();
 
   const validationError = validateAstronautDetails(rank, age, weight, height);
@@ -245,28 +279,29 @@ export function astronautDetailUpdate(
   return {};
 }
 /**
- *
- * @param controlUserId
- * @param astronautId
- * @returns All information about astronaut
- */
+  * Returns the full details of an existing astronaut.
+  *
+  * @param controlUserId - The unique identifier of the controlUser requesting the astronaut details
+  * @param astronautId - The unique identifier of the astronaut
+  *
+  * @returns An object containing the astronaut's id, designation, timestamps, physical details and assigned mission.
+  * @throws {HTTPError} 400 - Error case: if the astronautId is invalid.
+*/
 export function astronautGetInfo(
   controlUserId: number,
   astronautId: number
-):
-  | {
-      astronautId: number;
-      designation: string;
-      timeAdded: number;
-      timeLastEdited: number;
-      age: number;
-      weight: number;
-      height: number;
-      assignedMission:
-        | { missionId: number; objective: string }
-        | Record<string, never>;
-    }
-  | { error: string; errorCategory: string } {
+): {
+    astronautId: number;
+    designation: string;
+    timeAdded: number;
+    timeLastEdited: number;
+    age: number;
+    weight: number;
+    height: number;
+    assignedMission:
+      | { missionId: number; objective: string }
+      | Record<string, never>;
+  } {
   const data: DataStore = getData();
   const ast = data.astronautsArray.find(
     (x) => x.astronaut.astronautId === astronautId
@@ -310,12 +345,14 @@ export function astronautGetInfo(
 }
 
 /**
- * Allow and astronaut to send messages to an LLM chatbot.
- *
- * @param astronautId
- * @param messageRequest
- * @returns messageResponse by llm chatbot
- */
+  * Sends an astronaut message to the LLM chatbot.
+  *
+  * @param astronautId - The unique identifier of the astronaut sending the message
+  * @param messageRequest - The message sent by the astronaut
+  *
+  * @returns An object containing the chatbot message response.
+  * @throws {HTTPError} 400 - Error case: if the astronautId is invalid, the astronaut is not in a launch, or the launch is on Earth.
+*/
 export function sendLlmChat(astronautId: number, messageRequest: string) {
   const data = getData();
   const astronaut = data.astronautsArray.find(
@@ -355,11 +392,13 @@ export function sendLlmChat(astronautId: number, messageRequest: string) {
 }
 
 /**
- * Retrieve the entire message history for the Astronaut
- *
- * @param astronautId
- * @returns - chat history
- */
+  * Returns the LLM chat history for an astronaut in an active launch.
+  *
+  * @param astronautId - The unique identifier of the astronaut
+  *
+  * @returns An object containing the launchId and message log for the astronaut.
+  * @throws {HTTPError} 400 - Error case: if the astronautId is invalid, the astronaut is not in a launch, or the launch is on Earth.
+*/
 export function llmChatHistory(astronautId: number) {
   const data = getData();
   const astronaut = data.astronautsArray.find(
