@@ -1,4 +1,5 @@
-// Do not delete this file
+// // Do not delete this file, this function is used to test server response.
+
 type ErrorMsg = {
     error: string;
   };

@@ -19,22 +19,6 @@ import {
 
 import HTTPError from 'http-errors';
 
-// logic functions
-
-// launchVehicleCreate
-// headers:
-//  controlUserSessionId -> controlUserId
-// body:
-// {
-//     "name": "Saturn V",
-//     "description": "Multi-stage booster rocket",
-//     "maxCrewWeight": 500,
-//     "maxPayloadWeight": 1000,
-//     "launchVehicleWeight": 4000,
-//     "thrustCapacity": 1000000,
-//     "maneuveringFuel": 10
-//   }
-
 export function launchVehicleCreate(
   name: string,
   description: string,
@@ -168,7 +152,6 @@ export function launchVehicleRetire(launchVehicleId: number) {
   setData(data);
   return {};
 }
-// launchVehicleUpdate
 
 // launchVehicleUpdate
 /**

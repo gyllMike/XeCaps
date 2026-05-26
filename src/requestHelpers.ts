@@ -1,7 +1,6 @@
 import request from 'sync-request-curl';
 import config from './config.json';
 import { LaunchInput } from './dataStore';
-// import { STATUS_CODES } from 'http';
 
 const SERVER_URL = `${config.url}:${config.port}`;
 const TIMEOUT_MS = 5 * 1000;
@@ -107,33 +106,6 @@ export function requestClear() {
   };
 }
 
-/**
- * Sends a GET request to retrieve the details of the currently authenticated control user.
- *
- * @param {string} sessionId - The control user session ID for authorization.
- *
- * @returns {Object} statusCode - The HTTP status code returned by the server.
- * @returns {Object} body - The parsed JSON body returned by the server, containing control user details.
- *
- * Example success response:
- *   {
- *     statusCode: 200,
- *     body: {
- *       controlUserId: 1,
- *       email: 'alan@gmail.com',
- *       firstName: 'Alan',
- *       lastName: 'Guo',
- *       timeCreated: 1699999999
- *     }
- *   }
- *
- * Example error response:
- *   401 Unauthorized (invalid session):
- *     {
- *       statusCode: 401,
- *       body: { error: 'invalid input' }
- *     }
- */
 export function requestadminControlUserDetails(sessionId: string) {
   const res = request('GET', SERVER_URL + '/v1/admin/controluser/details', {
     headers: {
@@ -178,39 +150,6 @@ export function requestadminControlUserPasswordUpdate(sessionId: string, oldPass
   };
 }
 
-/**
- * Sends a PUT request to update the name of a specific mission.
- *
- * @param {string} sessionId - The control user session ID for authorization.
- * @param {number} missionId - The ID of the mission to update (from URL path).
- * @param {string} newname - The new name to assign to the mission.
- *
- * @returns {Object} statusCode - The HTTP status code returned by the server.
- * @returns {Object} body - The parsed JSON body returned by the server.
- *
- * Example success response:
- *   {
- *     statusCode: 200,
- *     body: {}
- *   }
- *
- * Example error responses:
- *   400 Bad Request (invalid name):
- *     {
- *       statusCode: 400,
- *       body: { error: 'invalid input' }
- *     }
- *   401 Unauthorized (invalid session):
- *     {
- *       statusCode: 401,
- *       body: { error: 'invalid input' }
- *     }
- *   403 Forbidden (mission not accessible to user):
- *     {
- *       statusCode: 403,
- *       body: { error: 'invalid input' }
- *     }
- */
 export function requestadminMissionNameUpdate(sessionId: string, missionId: number, newname: string) {
   const res = request('PUT', SERVER_URL + `/v1/admin/mission/${missionId}/name`, {
     headers: {
@@ -226,39 +165,6 @@ export function requestadminMissionNameUpdate(sessionId: string, missionId: numb
   };
 }
 
-/**
- * Sends a PUT request to update the description of a specific mission.
- *
- * @param {string} sessionId - The control user session ID for authorization.
- * @param {number} missionId - The ID of the mission to update (from URL path).
- * @param {string} newdescription - The new description to assign to the mission.
- *
- * @returns {Object} statusCode - The HTTP status code returned by the server.
- * @returns {Object} body - The parsed JSON body returned by the server.
- *
- * Example success response:
- *   {
- *     statusCode: 200,
- *     body: {}
- *   }
- *
- * Example error responses:
- *   400 Bad Request:
- *     {
- *       statusCode: 400,
- *       body: { error: 'invalid input' }
- *     }
- *   401 Unauthorized (invalid session):
- *     {
- *       statusCode: 401,
- *       body: { error: 'invalid input' }
- *     }
- *   403 Forbidden (mission not accessible to user):
- *     {
- *       statusCode: 403,
- *       body: { error: 'invalid input' }
- *     }
- */
 export function requestadminMissionDescriptionUpdate(sessionId: string, missionId: number, newdescription: string) {
   const res = request('PUT', SERVER_URL + `/v1/admin/mission/${missionId}/description`, {
     headers: {
@@ -355,33 +261,6 @@ export function requestastronautPoolList(sessionId: string) {
   };
 }
 
-/**
- * Sends a PUT request to update an astronaut's details.
- *
- * @param {string} sessionId - The control user session ID for authorization.
- * @param {number} astronautid - The ID of the astronaut to update (from URL path).
- * @param {string} nameFirst - The updated first name of the astronaut.
- * @param {string} nameLast - The updated last name of the astronaut.
- * @param {string} rank - The updated rank of the astronaut.
- * @param {number} age - The updated age of the astronaut.
- * @param {number} weight - The updated weight of the astronaut.
- * @param {number} height - The updated height of the astronaut.
- *
- * @returns {Object} statusCode - The HTTP status code returned by the server.
- * @returns {Object} body - The parsed JSON body returned by the server.
- *
- * Example success response:
- *   {
- *     statusCode: 200,
- *     body: {}
- *   }
- *
- * Example error response:
- *   {
- *     statusCode: 400,
- *     body: { error: 'Name of Astronaut already exist' }
- *   }
- */
 export function requestastronautDetailUpdate(sessionId: string, astronautid: number, nameFirst: string, nameLast: string, rank: string, age: number, weight: number, height: number) {
   const res = request('PUT', SERVER_URL + `/v1/admin/astronaut/${astronautid}`, {
     headers: { controlUserSessionId: sessionId },

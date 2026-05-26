@@ -16,9 +16,6 @@ interface MissionListSuccess {
 
 export function adminMissionTargetUpdate(sessionId: string, missionId: number, target: string) {
   const controlUserId = findControlUserIdFromSessionId(sessionId);
-  // if (isNaN(missionId)) {
-  //   throw HTTPError(400, 'Mission ID must be a number.');
-  // }
 
   // 1. Verify the mission exists and the user owns it.
   if (!missionIdCheck(missionId, controlUserId)) {
@@ -44,7 +41,7 @@ export function adminMissionTargetUpdate(sessionId: string, missionId: number, t
 /**
   *  Returns a list of all space missions that are owned by the currently logged in control user.
   *
-  * @param {number} - use to find the target user
+  * @param {number} controlUserId - use to find the target user
   *
   * @return {missionId} - the mission id number
   * @return {name} - the mission name
@@ -108,11 +105,10 @@ export function adminMissionCreate (sessionId: string, name: string, description
  * @param {number} controlUserId - the target mission's user ID
  * @param {number} missionId - the target mission ID
  *
- * @return { } - return empty if remove successfully
+ * @return {} - return empty if remove successfully
 */
-export function adminMissionRemove(controlUserId: number, missionId: number) {
+export function adminMissionRemove(controlUserId: number, missionId: number): Record<string, never> {
   const data: DataStore = getData();
-  // if (!controlUserIdCheck(controlUserId)) throw HTTPError(401, 'Invalid controlUserID');
   if (!missionIdCheck(missionId, controlUserId)) throw HTTPError(403, 'Invalid missionID');
   const missionObj = data.spaceMissionsArray.find(m => m.spaceMission.missionId === missionId && m.spaceMission.controlUserId === controlUserId);
   if (missionObj.spaceMission.assignedAstronauts.some(a => Object.keys(a).length > 0)) {
@@ -176,7 +172,7 @@ export function adminMissionInfo(controlUserId: number, missionId: number): { mi
 /**
   * <Checking Error input of ControlUserId, MissionId and name>
   *
-  * @param {NUMBER} ControlUserId - The ID of user, return in random number
+  * @param {NUMBER} controlUserId - The ID of user, return in random number
   * @param {NUMBER} missionId - The ID of mission id above specific ControlUserId
   * @param {Char} name - The name of mission
   *
@@ -185,7 +181,7 @@ export function adminMissionInfo(controlUserId: number, missionId: number): { mi
   * @return {403, 'Mission Id Invalidity'} inaccessible_value when missionid is in error
   * @return {400, 'mission name Invalidity'}  bad_input when name is in error
 */
-export function adminMissionNameUpdate(controlUserId: number, missionId: number, name: string) {
+export function adminMissionNameUpdate(controlUserId: number, missionId: number, name: string): Record<string, never> {
   if (missionIdCheck(missionId, controlUserId) === false || !missionId) {
     throw HTTPError(403, 'badinput');
   }
@@ -209,9 +205,9 @@ export function adminMissionNameUpdate(controlUserId: number, missionId: number,
 /**
   * <Checking Error input of ControlUserId, MissionId and Description>
   *
-  * @param {NUMBER} ControlUserId - The ID of user, return in random number
-  * @param {NUMBER} missionId - The ID of mission id above specific ControlUserId
-  * @param {Char} description - The description of specific mission
+  * @param {number} controlUserId - The ID of user, return in random number
+  * @param {number} missionId - The ID of mission id above specific ControlUserId
+  * @param {char} description - The description of specific mission
   *
   * @returns {{}} - Return a empty object
   * @returns {401, 'Control User Id Invalidity'} invalid_credentials when controluserid is in error type
@@ -219,7 +215,7 @@ export function adminMissionNameUpdate(controlUserId: number, missionId: number,
   * @return {403, 'mission description Invalidity'}  bad_input when descripition is in error
 */
 
-export function adminMissionDescriptionUpdate(controlUserId: number, missionId: number, description: string) {
+export function adminMissionDescriptionUpdate(controlUserId: number, missionId: number, description: string): Record<string, never> {
   if (!missionId || missionIdCheck(missionId, controlUserId) === false) {
     throw HTTPError(403, 'badinput');
   }

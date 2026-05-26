@@ -132,7 +132,6 @@ export function astronautCreate(
  * @returns An object containing a list of all astronauts.
  */
 export function astronautPoolList(): { astronauts: AstronautListItem[] } {
-  // LOGIC STUB FOR ITERATION 2
   const data = getData();
   const astronauts = data.astronautsArray.map((i) => {
     const astronaut = i.astronaut;
@@ -175,7 +174,9 @@ export function astronautRemove(
   data.astronautsArray = data.astronautsArray.filter(
     (a) => a.astronaut.astronautId !== astronautId
   );
-  setData(data); // Save the updated data
+
+  // Save the updated data
+  setData(data);
   return {};
 }
 

@@ -1,9 +1,9 @@
-import { setData, DataStore } from './dataStore';
-import { timers } from './newHelpers';
 // This file should contain your functions relating to:
 // - clear
+import { setData, DataStore } from './dataStore';
+import { timers } from './newHelpers';
 
-export function clear ():Record <string, never> {
+export function clear (): Record <string, never> {
   const initialdata: DataStore = {
     missionControlUsersArray: [],
     spaceMissionsArray: [],

@@ -74,7 +74,6 @@ export function launchCreate(controlUserId: number,
   const data = getData();
   const l = data.launchVehiclesArray.find(l => l.launchVehicle.launchVehicleId === launchVehicleId);
   if (l.launchVehicle.retired === true) throw HTTPError(400, `LaunchVehicleId ${launchVehicleId} is retired`);
-  // TODO - complete the rest of code based on suggestions
   const active = data.launchesArray.some(l => l.launch.assignedLaunchVehicleId === launchVehicleId && l.launch.state !== missionLaunchState.ON_EARTH);
   if (active) throw HTTPError(400, 'Assigned launch vehicle');
   const lv = data.launchVehiclesArray.find(l => l.launchVehicle.launchVehicleId === launchVehicleId).launchVehicle;
@@ -113,9 +112,8 @@ export function launchCreate(controlUserId: number,
   // everything ok, now you can create a launch
   // first create a payload and use that payloadId
   const payloadObject = payloadCreate(payload.description, payload.weight, launchVehicleId);
-  // 1. Remember - need a DEEP COPY of your Mission so that if a mission gets changed, then the Launch Copy does not change
+  // need a DEEP COPY of your Mission so that if a mission gets changed, then the Launch Copy does not change
   data.payloadsArray.push({ payload: payloadObject.newPayload });
-  // add to dataStore, and setData()
   const launchId = genLaunchId();
   const creationTime = getTime();
   const newLaunch: Launch = {
@@ -179,12 +177,6 @@ export function updateLaunchState(newAction: missionLaunchAction, launchId: numb
   if (!checkLaunchIdValidity(launchId)) {
     throw HTTPError(400, 'invalid launchId');
   }
-
-  // not needed as we have a switch statement that handles this.
-  // // check to make sure action exists
-  // if (!checkActionValidity(newAction)) {
-  //     throw HTTPError(400, `invalid action - ${newAction}`);
-  // }
 
   // big switch statement to check if action is permitted in current state and if it is, what to do
   const data = getData();
