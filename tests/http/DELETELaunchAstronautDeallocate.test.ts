@@ -1,6 +1,6 @@
-import { requestAdminAuthRegister, requestadminMissionCreate, adminLaunchVehicleCreateRequest, requestAstronautCreate, requestAdminAstronautAssign, adminLaunchCreateRequest, requestlaunchAllocate, requestLaunchDeallocate, requestadminAuthLogin, adminLaunchInfoRequest, adminLaunchStateUpdateRequest, requestClear } from "../../src/requestHelpers";
-import { sampleUser1, sampleMission1, sampleLaunchVehicle1, sampleAstronaut1, sampleLaunch1 } from "./sampleTestData";
-import { missionLaunchAction, getData } from '../../src/dataStore';
+import { requestAdminAuthRegister, requestadminMissionCreate, adminLaunchVehicleCreateRequest, requestAstronautCreate, requestAdminAstronautAssign, adminLaunchCreateRequest, requestlaunchAllocate, requestLaunchDeallocate, adminLaunchInfoRequest, adminLaunchStateUpdateRequest, requestClear } from '../../src/requestHelpers';
+import { sampleUser1, sampleMission1, sampleLaunchVehicle1, sampleAstronaut1, sampleLaunch1 } from './sampleTestData';
+import { missionLaunchAction } from '../../src/dataStore';
 
 describe('launchAstronautDeallocate test', () => {
   let sessionId1: string;

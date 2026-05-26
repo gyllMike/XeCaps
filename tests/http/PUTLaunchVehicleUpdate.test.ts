@@ -1,12 +1,6 @@
 import { requestlaunchVehicleUpdate, adminLaunchVehicleCreateRequest, adminLaunchVehicleInfoRequest, requestClear, requestAdminAuthRegister, adminLaunchStateUpdateRequest, adminLaunchCreateRequest, requestadminMissionCreate } from '../../src/requestHelpers';
 import { sampleUser1, sampleLaunchVehicle1, sampleLaunchVehicle2, sampleLaunchVehicle3, sampleLaunchVehicle4, sampleMission1, sampleLaunch1 } from './sampleTestData';
 
-/**
- * Test suite for the `/v1/admin/launchvehicle/:launchvehicleid` endpoint.
- *
- * This suite verifies that the Launch Vehicle update functionality works correctly through
- * the HTTP layer using the request helper functions. It includes success and error case testing.
- */
 describe('/v1/admin/launchvehicle/:launchvehicleid - HTTP layer via requestHelper', () => {
   let sessionId: string;
   let launchVehicleId1: number;
@@ -104,10 +98,10 @@ describe('/v1/admin/launchvehicle/:launchvehicleid - HTTP layer via requestHelpe
     expect(UpdateRes.body).toHaveProperty('error');
   });
 
-    test('vehicleId Invalidity', () => {
+  test('vehicleId Invalidity', () => {
     const UpdateRes = requestlaunchVehicleUpdate(
       sessionId,
-      launchVehicleId1+1,
+      launchVehicleId1 + 1,
       sampleLaunchVehicle2.name,
       sampleLaunchVehicle2.description,
       sampleLaunchVehicle2.maxCrewWeight,
@@ -120,7 +114,6 @@ describe('/v1/admin/launchvehicle/:launchvehicleid - HTTP layer via requestHelpe
     expect(UpdateRes.stausCode).toBe(400);
     expect(UpdateRes.body).toHaveProperty('error');
   });
-
 
   test('name Invalidity - name too long', () => {
     const UpdateRes = requestlaunchVehicleUpdate(

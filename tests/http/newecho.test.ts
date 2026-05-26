@@ -41,4 +41,4 @@ describe('HTTP tests using Jest', () => {
 test('unknow route', () => {
   const res = request('POST', SERVER_URL + '/notaroute');
   expect(res.statusCode).toBe(404);
-})
+});

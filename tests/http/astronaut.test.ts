@@ -349,7 +349,8 @@ describe('v1/admin/astronaut/:astronautid -astronautDetailUpdate - HTTP layer vi
     const newweight = 90;
     const newheight = 185;
 
-    const res = requestastronautDetailUpdate(SessionId, null, newnameFirst, newnameLast, newrank, newage, newweight, newheight);
+    const invalidAstronautId = null as unknown as number;
+    const res = requestastronautDetailUpdate(SessionId, invalidAstronautId, newnameFirst, newnameLast, newrank, newage, newweight, newheight);
     expect(res.statusCode).toBe(400);
     expect(res.body).toHaveProperty('error');
   });
@@ -451,7 +452,7 @@ describe('v1/admin/astronaut/:astronautid -astronautDetailUpdate - HTTP layer vi
   });
 
   test('Different ID NameFirst and NameLast already exist Update Case Test', () => {
-    const astronaut1 = requestAstronautCreate(SessionId, 'Alan', 'Guo', 'LEVELA', 21, 80, 180);
+    requestAstronautCreate(SessionId, 'Alan', 'Guo', 'LEVELA', 21, 80, 180);
     const astronaut2 = requestAstronautCreate(SessionId, 'Chris', 'Li', 'LEVELB', 22, 85, 175);
 
     const astronautId2 = astronaut2.body.astronautId;
@@ -535,7 +536,7 @@ describe('HTTP DELETE remove astronaut', () => {
     test('should return an error if the astronaut is currently assigned to a mission', () => {
       // Create a mission and assign the astronaut
       const mission = requestadminMissionCreate(user1SessionId, 'Moon Landing', 'Go to moon', 'Moon');
-      requestAdminAstronautAssign(user1SessionId, astronaut1.astronautId, mission.body.missionId)
+      requestAdminAstronautAssign(user1SessionId, astronaut1.astronautId, mission.body.missionId);
       const { statusCode, body } = requestAstronautRemove(user1SessionId, astronaut1.astronautId);
 
       expect(statusCode).toBe(400);
@@ -545,43 +546,42 @@ describe('HTTP DELETE remove astronaut', () => {
 });
 
 describe('HTTP GET ASTRONAUT INFORMATION TEST', () => {
-  let user1, user2, user3;
-  let sessionId1: string, sessionId2: string, invaild_sessionId: string;
-  let astronaut1, astronaut2, astronaut3;
-  let astronautId1: number, astronautId2: number, astronautId3: number, invaild_astronautId: number;
+  let user1: ReturnType<typeof requestAdminAuthRegister>;
+  let user2: ReturnType<typeof requestAdminAuthRegister>;
+  let sessionId1: string, sessionId2: string, invalidSessionId: string;
+  let astronaut1: ReturnType<typeof requestAstronautCreate>;
+  let astronautId1: number, invalidAstronautId: number;
   beforeEach(() => {
     requestClear();
     user1 = requestAdminAuthRegister('chrislee@gmail.com', 'abcd1234!@#', 'Chris', 'Li');
     user2 = requestAdminAuthRegister('alan@gmail.com', 'xyz123@@', 'Alan', 'Guo');
-    user3 = requestAdminAuthRegister('harrypotter@gmail.com', 'qwert789~~', 'harry', 'potter');
+    requestAdminAuthRegister('harrypotter@gmail.com', 'qwert789~~', 'harry', 'potter');
 
     sessionId1 = user1.body.controlUserSessionId;
     sessionId2 = user2.body.controlUserSessionId;
-    invaild_sessionId = '-999';
+    invalidSessionId = '-999';
 
     astronaut1 = requestAstronautCreate(sessionId1, 'You', 'Wu', 'rankkkk', 21, 66, 190);
-    astronaut2 = requestAstronautCreate(sessionId1, 'Will', 'Wu', 'rankkkk', 23, 60, 190);
-    astronaut3 = requestAstronautCreate(sessionId1, 'Zhen', 'Cao', 'rankkkk', 25, 70, 190);
+    requestAstronautCreate(sessionId1, 'Will', 'Wu', 'rankkkk', 23, 60, 190);
+    requestAstronautCreate(sessionId1, 'Zhen', 'Cao', 'rankkkk', 25, 70, 190);
 
     astronautId1 = astronaut1.body.astronautId;
-    astronautId2 = astronaut2.body.astronautId;
-    astronautId3 = astronaut3.body.astronautId;
-    invaild_astronautId = -999;
+    invalidAstronautId = -999;
   });
 
   describe('wrong case', () => {
     test('invalid session id', () => {
-      expect(requestastronautGetInfo(invaild_sessionId, astronautId1).body).toStrictEqual({
+      expect(requestastronautGetInfo(invalidSessionId, astronautId1).body).toStrictEqual({
         error: expect.any(String)
       });
-      expect(requestastronautGetInfo(invaild_sessionId, astronautId1).statusCode).toBe(401);
+      expect(requestastronautGetInfo(invalidSessionId, astronautId1).statusCode).toBe(401);
     });
 
     test('invaild astronaut id', () => {
-      expect(requestastronautGetInfo(sessionId1, invaild_astronautId).body).toStrictEqual({
+      expect(requestastronautGetInfo(sessionId1, invalidAstronautId).body).toStrictEqual({
         error: expect.any(String)
       });
-      expect(requestastronautGetInfo(sessionId1, invaild_astronautId).statusCode).toBe(400);
+      expect(requestastronautGetInfo(sessionId1, invalidAstronautId).statusCode).toBe(400);
     });
   });
 

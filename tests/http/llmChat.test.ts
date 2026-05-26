@@ -78,7 +78,7 @@ describe('sendLlmChat test', () => {
   test('success test', () => {
     adminLaunchStateUpdateRequest(sessionId, missionId, lId, 'LIFTOFF');
     const data = getData();
-    const launch = data.launchesArray.find(l => l.launch.launchId === lId).launch;
+    const launch = data.launchesArray.find(l => l.launch.launchId === lId)!.launch;
     launch.allocatedAstronauts.push(astronautId);
     setData(data);
     const res = requestSendLlmChat(astronautId, 'hi');
@@ -98,7 +98,7 @@ describe('sendLlmChat test', () => {
   test('launch on earth', () => {
     adminLaunchStateUpdateRequest(sessionId, missionId, lId, 'FAULT');
     const data = getData();
-    const launch = data.launchesArray.find(l => l.launch.launchId === lId).launch;
+    const launch = data.launchesArray.find(l => l.launch.launchId === lId)!.launch;
     launch.allocatedAstronauts.push(astronautId);
     setData(data);
     const res = requestSendLlmChat(astronautId, 'hi');
@@ -164,7 +164,7 @@ describe('LlmChat History test', () => {
   test('success test', () => {
     adminLaunchStateUpdateRequest(sessionId, missionId, lId, 'LIFTOFF');
     const data = getData();
-    const launch = data.launchesArray.find(l => l.launch.launchId === lId).launch;
+    const launch = data.launchesArray.find(l => l.launch.launchId === lId)!.launch;
     launch.allocatedAstronauts.push(astronautId);
     setData(data);
     const Sres = requestSendLlmChat(astronautId, 'hi');
@@ -193,7 +193,7 @@ describe('LlmChat History test', () => {
   test('launch on earth', () => {
     adminLaunchStateUpdateRequest(sessionId, missionId, lId, 'FAULT');
     const data = getData();
-    const launch = data.launchesArray.find(l => l.launch.launchId === lId).launch;
+    const launch = data.launchesArray.find(l => l.launch.launchId === lId)!.launch;
     launch.allocatedAstronauts.push(astronautId);
     setData(data);
     const res = requestLlmChatHistory(astronautId);

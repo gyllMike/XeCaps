@@ -1,14 +1,3 @@
-// import {
-//   clearRequest,
-//   adminLaunchVehicleInfoRequest,
-//   adminAuthRegisterRequest,
-//   adminMissionCreateRequest,
-//   adminAstronautCreateRequest,
-//   adminLaunchVehicleCreateRequest,
-//   adminLaunchCreateRequest,
-//   adminAstronautAssignRequest,
-//   adminAstronautAllocateRequest
-// } from './requestHelpers';
 import {
   requestClear,
   requestAdminAuthRegister,
@@ -278,7 +267,7 @@ describe('GET LaunchStatusUpdate', () => {
       adminLaunchStateUpdateRequest(sessionId, missionId, lId, 'FIRE_THRUSTERS');
       adminLaunchStateUpdateRequest(sessionId, missionId, lId, 'DEPLOY_PAYLOAD');
       adminLaunchStateUpdateRequest(sessionId, missionId, lId, 'RETURN');
-      const res = adminLaunchStateUpdateRequest(sessionId, missionId, lId, 'FAULT');;
+      const res = adminLaunchStateUpdateRequest(sessionId, missionId, lId, 'FAULT');
       expect(res.statusCode).toBe(400);
     });
     test('Attempted LIFTOFF with unreachable launch parameters', () => {
@@ -479,4 +468,3 @@ describe('GET LaunchStatusUpdate', () => {
     });
   });
 });
-

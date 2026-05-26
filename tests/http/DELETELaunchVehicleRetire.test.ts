@@ -95,7 +95,7 @@ describe('GET LaunchStatusUpdate', () => {
     expect(JSON.parse(res.body.toString())).toStrictEqual({});
     const info = adminLaunchVehicleInfoRequest(sessionId, lvId);
     expect(info.statusCode).toBe(200);
-    const resParse = JSON.parse(info.body.toString()); 
+    const resParse = JSON.parse(info.body.toString());
     expect(resParse.retired).toBe(true);
   });
   test('launch vehicle still active test', () => {
