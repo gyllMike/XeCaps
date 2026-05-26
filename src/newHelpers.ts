@@ -90,79 +90,59 @@ export function genAllocatedAstronautSummary(allocatedAstronautList: number[]) {
 export function launchVehicleNameValidityCheck(name:string) : boolean {
   // Name contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
   // Name is less than 2 characters or more than 20 characters
-
-  // TODO - add your code and fix the code below
-
-  return /^[A-Za-z\s'-]{2,20}$/.test(name); // we can throw a HTTP error here
-  // throw HTTPError(400, `${name} is not a valid name for a launch vehicle`);
+  return /^[A-Za-z\s'-]{2,20}$/.test(name);
 }
 
 export function launchVehicleDescriptionValidityCheck(description:string) : boolean {
   // Description contains characters other than lowercase letters, uppercase letters, spaces, hyphens, or apostrophes
   // Description is less than 2 characters or more than 50 characters
-
-  // TODO - add your code and fix the code below
   return /^[A-Za-z\s'-]{2,50}$/.test(description);
 }
 
 export function launchVehicleCrewWeightValidityCheck(maxCrewWeight: number) : boolean {
   // maximumCrewWeight < 100 or > 1000
-
-  // TODO - add your code and fix the code below
   return maxCrewWeight >= 100 && maxCrewWeight <= 1000;
 }
 
 export function launchVehiclePayloadWeightValidityCheck(maxPayloadWeight: number) : boolean {
   // maximumPayloadWeight < 100 or > 1000
-  // TODO - add your code and fix the code below
   return maxPayloadWeight >= 100 && maxPayloadWeight <= 1000;
 }
 
 export function launchVehicleWeightValidityCheck(launchVehicleWeight: number) : boolean {
   // launchVehicleWeight < 1000 or > 100000
-  // TODO - add your code and fix the code below
   return launchVehicleWeight >= 1000 && launchVehicleWeight <= 100000;
 }
 
 export function launchVehicleThrustCapacityValidityCheck(thrustCapacity: number) : boolean {
   // thrustCapacity < 100000 or > 10000000
-  // TODO - add your code and fix the code below
   return thrustCapacity >= 100000 && thrustCapacity <= 10000000;
 }
 
 export function launchVehicleManeuveringFuelValidityCheck(maneuveringFuel: number) : boolean {
   // maneuveringFuel < 10 or > 100
-  // TODO - add your code and fix the code below
   return maneuveringFuel >= 10 && maneuveringFuel <= 100;
 }
 
 export function launchVehicleIdCheck(launchVehicleId: number) {
   // check if the ID is valid and exists in your dataStore
-  // TODO - add your code and fix the code below
   const data = getData();
   return data.launchVehiclesArray.some(l => l.launchVehicle.launchVehicleId === launchVehicleId);
 }
 
 export function checkLaunchIdValidity(launchId: number) {
   // a helper function that checks to see if the launchId is valid etc.
-
-  // TODO - you must complete this helper function
   const data = getData();
   return data.launchesArray.some(l => l.launch.launchId === launchId);
 }
 
 export function payloadDescriptionValidCheck(description: string) {
   // a helper function that checks for length of payload and content if needed.
-
-  // TODO - you must complete this helper function
-
   return /^[A-Za-z\s'-]{2,50}$/.test(description);
 }
 
 export function payloadWeightValidCheck(payloadWeight: number, launchVehicleId: number) {
   // a helper function that checks for payload weight falling into parameters
-
-  // TODO - You must complete this helper function
   const data = getData();
   const launchVehicle = data.launchVehiclesArray.find(l => l.launchVehicle.launchVehicleId === launchVehicleId).launchVehicle;
   return payloadWeight > 0 && payloadWeight <= launchVehicle.maxPayloadWeight;
@@ -170,8 +150,6 @@ export function payloadWeightValidCheck(payloadWeight: number, launchVehicleId: 
 
 export function checkManeuveringFuel(launchId: number) {
   // a helper function that checks if there is at least 3 units of fuel left
-
-  // TODO - you must complete this helper function
   const data = getData();
   const launch = data.launchesArray.find(l => l.launch.launchId === launchId).launch;
   if (launch.remainingLaunchVehicleManeuveringFuel < 3) return false;
@@ -182,8 +160,6 @@ export function checkManeuveringFuel(launchId: number) {
 
 export function canThisLaunchReachTargetDistanceCheck(launchId: number) : boolean {
   // a helper function that does calculations using the launchParameters to see if this launch can go ahead.
-
-  // TODO - you must complete this helper function
   const data = getData();
   const launch = data.launchesArray.find(l => l.launch.launchId === launchId).launch;
   const lv = data.launchVehiclesArray.find(l => l.launchVehicle.launchVehicleId === launch.assignedLaunchVehicleId).launchVehicle;
@@ -218,13 +194,6 @@ export function initializeLaunching(launchId: number) {
   const timer = setTimeout(() => initializeManeuvering(launchId), 3000);
   timers.set(launchId, timer);
   setData(data);
-  // TODO - you must complete this helper function
-  // Carry out the launch update steps:
-  //  1. Set state to LAUNCHING
-  //  2. Clear existing timers for this launch
-  //  3. Create a timer for 3 seconds to execute initializeManevuring()
-
-  // You do not need to return anything, you can use this for checks to see if something has gone wrong
 }
 
 export function initializeManeuvering(launchId: number) {
@@ -237,13 +206,6 @@ export function initializeManeuvering(launchId: number) {
   const timer = setTimeout(() => initializeCoasting(launchId), launch.launchCalculationParameters.maneuveringDelay * 1000);
   timers.set(launchId, timer);
   setData(data);
-  // TODO - you must complete this helper function
-  // Carry out the launch update steps:
-  //  1. Set state to MANEUVERING
-  //  2. Clear existing timers for this launch
-  //  3. Create a timer for n seconds to execute initializeCoasting() where n is defined in the launchParameters.
-
-  // You do not need to return anything, you can use this for checks to see if something has gone wrong
 }
 
 export function initializeCoasting(launchId: number) {
@@ -254,12 +216,6 @@ export function initializeCoasting(launchId: number) {
   launch.state = missionLaunchState.COASTING;
   deleteTime(launchId);
   setData(data);
-  // TODO - you must complete this helper function
-  // Carry out the launch update steps:
-  //  1. Set state to COASTING
-  //  2. Clear existing timers for this launch
-
-  // You do not need to return anything, you can use this for checks to see if something has gone wrong
 }
 
 export function initializeMissionComplete(launchId: number) {
@@ -270,12 +226,6 @@ export function initializeMissionComplete(launchId: number) {
   launch.state = missionLaunchState.MISSION_COMPLETE;
   deleteTime(launchId);
   setData(data);
-  // TODO - you must complete this helper function
-  // Carry out the launch update steps:
-  //  1. Set state to MISSION_COMPLETE
-  //  2. Clear existing timers for this launch
-
-  // You do not need to return anything, you can use this for checks to see if something has gone wrong
 }
 
 export function initializeReentry(launchId: number) {
@@ -286,12 +236,6 @@ export function initializeReentry(launchId: number) {
   launch.state = missionLaunchState.REENTRY;
   deleteTime(launchId);
   setData(data);
-  // TODO - you must complete this helper function
-  // Carry out the launch update steps:
-  //  1. Set state to REENTRY
-  //  2. Clear existing timers for this launch
-
-  // You do not need to return anything, you can use this for checks to see if something has gone wrong
 }
 
 export function initializeOnEarth(launchId: number) {
@@ -303,13 +247,6 @@ export function initializeOnEarth(launchId: number) {
   deleteTime(launchId);
   launch.allocatedAstronauts = [];
   setData(data);
-  // TODO - you must complete this helper function
-  // Carry out the launch update steps:
-  //  1. Set state to ON_EARTH
-  //  2. Clear existing timers for this launch
-  //  3. De-allocate astronauts (and launch vehicle)
-
-  // You do not need to return anything, you can use this for checks to see if something has gone wrong
 }
 
 export function deployPayload(launchId: number) {
@@ -322,6 +259,4 @@ export function deployPayload(launchId: number) {
   const payload = data.payloadsArray.find(p => p.payload.payloadId === launch.payloadId).payload;
   payload.deployed = true;
   setData(data);
-  // TODO - you must complete this helper function
-  // Set the deployed flag of the payload for this launch to true
 }

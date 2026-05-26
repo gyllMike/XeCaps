@@ -1,18 +1,23 @@
-// IMPORTS are the start of the file
+// // IMPORTS are the start of the file
+
 // import Express server related libraries
 import express, { json, Request, Response } from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
+
 // import Swagger display related libraries
 import YAML from 'yaml';
 import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+
 // import your webserver configuration file
 import config from './config.json';
+
 // import your logic calls - add further items as required
 import { echo } from './newecho';
+
 // import { adminMissionTransfer } from './missionTransferExample';
 import {
   adminAuthRegister,
@@ -58,17 +63,19 @@ import {
   launchAstronautDeallocate,
   payloadDeployedList
 } from './launch';
-// import e from 'express';
-// import { string } from 'yaml/dist/schema/common/string';
 
 // Set up web app
 const app = express();
+
 // Use middleware that allows us to access the JSON body of requests
 app.use(json());
+
 // Use middleware that allows for access from other domains
 app.use(cors());
+
 // for logging errors (print to terminal)
 app.use(morgan('dev'));
+
 // for producing the docs that define the API
 const file = fs.readFileSync(path.join(process.cwd(), 'swagger.yaml'), 'utf8');
 app.get('/', (req: Request, res: Response) => res.redirect('/docs'));
@@ -83,10 +90,6 @@ app.use(
 // Setting up the configuration for your webserver
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || '127.0.0.1';
-
-// ====================================================================
-//  ================= WORK IS DONE BELOW THIS LINE ===================
-// ====================================================================
 
 // Example get request
 app.get('/echo', (req: Request, res: Response) => {
@@ -175,8 +178,7 @@ app.delete('/v1/admin/mission/:missionid', (req: Request, res: Response) => {
  * Retrieve detailed information about a specific control user
  * based on a valid controlUserSessionId.
  *
- * @param {string} controlUserSessionId - A unique session ID (generated via UUID)
- *                                        that maps to a valid controlUserId.
+ * @param {string} controlUserSessionId - A unique session ID (generated via UUID) that maps to a valid controlUserId.
  *
  * @returns {Object} 200 - Successful response containing user details
  * @returns {Object} 200.user
@@ -503,12 +505,6 @@ app.get('/v1/admin/launch/list', (req: Request, res: Response) => {
 });
 
 app.post('/v1/admin/launchvehicle', (req: Request, res: Response) => {
-  // 1. Handle Inputs
-  // 2. check 401 errors
-  // 3. check 403 errors
-  // 4. call logic
-  // 5. handle exceptions
-  // 6. return appropriate status codes
   const sessionId = req.header('controlUserSessionId');
   const {
     name,
@@ -540,12 +536,6 @@ app.post('/v1/admin/launchvehicle', (req: Request, res: Response) => {
 app.get(
   '/v1/admin/launchvehicle/:launchvehicleid',
   (req: Request, res: Response) => {
-    // 1. Handle Inputs
-    // 2. check 401 errors
-    // 3. check 403 errors
-    // 4. call logic
-    // 5. handle exceptions
-    // 6. return appropriate status codes
     const launchVehicleId = parseInt(req.params.launchvehicleid);
     const sessionId = req.header('controlUserSessionId');
     try {
@@ -561,13 +551,6 @@ app.get(
 app.post(
   '/v1/admin/mission/:missionid/launch',
   (req: Request, res: Response) => {
-    // 1. Handle Inputs
-    // 2. check 401 errors
-    // 3. check 403 errors
-    // 4. call logic
-    // 5. handle exceptions
-    // 6. return appropriate status codes
-
     const sessionId = req.header('controlUserSessionId');
     const missionId = parseInt(req.params.missionid);
     const { launchVehicleId, payload, launchParameters } = req.body;
@@ -592,12 +575,6 @@ app.post(
 app.get(
   '/v1/admin/mission/:missionid/launch/:launchid',
   (req: Request, res: Response) => {
-    // 1. Handle Inputs
-    // 2. check 401 errors
-    // 3. check 403 errors
-    // 4. call logic
-    // 5. handle exceptions
-    // 6. return appropriate status codes
     const sessionId = req.header('controlUserSessionId');
     const missionId = parseInt(req.params.missionid);
     const launchId = parseInt(req.params.launchid);
@@ -616,13 +593,6 @@ app.get(
 app.put(
   '/v1/admin/mission/:missionid/launch/:launchid/status',
   (req: Request, res: Response) => {
-    // 1. Handle Inputs
-    // 2. check 401 errors
-    // 3. check 403 errors
-    // 4. call logic
-    // 5. handle exceptions
-    // 6. return appropriate status codes
-
     const sessionId = req.header('controlUserSessionId');
     const missionId = parseInt(req.params.missionid);
     const launchId = parseInt(req.params.launchid);
@@ -642,12 +612,6 @@ app.put(
 app.delete(
   '/v1/admin/launchvehicle/:launchvehicleid',
   (req: Request, res: Response) => {
-    // 1. Handle Inputs
-    // 2. check 401 errors
-    // 4. call logic
-    // 5. handle exceptions
-    // 6. return appropriate status codes
-
     const sessionId = req.header('controlUserSessionId');
     const launchVehicleId = parseInt(req.params.launchvehicleid);
 
@@ -769,45 +733,6 @@ app.get('/v1/admin/payload/deployedList', (req: Request, res: Response) => {
     return res.status(e.statusCode).json({ error: e.message });
   }
 });
-
-// Remember to uncomment below code!!!
-/*
-// Example SWAGGER Route request
-app.post('/v1/admin/mission/:missionid/transfer', (req: Request, res: Response) => {
-  // 1. Prepare inputs (from header, body, query, path)
-  // 2. check for 401 (INVALID_CREDENTIALS) or 403 (INACCESSIBLE_VALUES) errors
-  // 3. Run your logic
-  // 4. check for 400 errors
-  // 5. Return your response
-  const userEmail = req.body.userEmail;
-  const missionId = parseInt(req.params.missionid);
-  // This line below is wrong! Please remember to replace it! Headers should all be in lower case!
-  const controlUserSessionId = req.headers.controlUserSessionId;
-
-  // assumes a helper function called findControlUserIdFromSession
-  // const controlUserId = findControlUserIdFromSession(controlUserSessionId);
-
-  const result = adminMissionTransfer(controlUserId, missionId, userEmail);
-  if ('error' in result) {
-    switch (result.essrrorCategory) {
-      case errorCategories.INVALID_CREDENTIALS:
-        return res.status(401).json({ error: result.error });
-        break;
-      case errorCategories.INACCESSIBLE_VALUE:
-        return res.status(403).json({ error: result.error });
-        break;
-      case errorCategories.BAD_INPUT:
-        return res.status(400).json({ error: result.error });
-        break;
-      default:
-    }
-  }
-});
-*/
-
-// ====================================================================
-//  ================= WORK IS DONE ABOVE THIS LINE ===================
-// ====================================================================
 
 app.use((req: Request, res: Response) => {
   const error = `

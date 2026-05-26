@@ -120,7 +120,7 @@ export function adminAuthLogin(email: string, password: string): { controlUserSe
 /**
   * <Checking Error input of control user id, and return full details of control user>
   *
-  * @param {NUMBER} ControlUserId - The ID of user, return in random number
+  * @param {NUMBER} controlUserId - The ID of user, return in random number
   *
   * @returns { user :
   *  {
@@ -144,10 +144,9 @@ export function adminControlUserDetails(controlUserId: number): {user:
     }
     } {
   const data = getData();
-
   const userObj = data.missionControlUsersArray.find(f => f.missionControlUser.controlUserId === controlUserId);
-
   const findUserId = userObj.missionControlUser;
+
   // return valid details
   return {
     user:
