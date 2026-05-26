@@ -49,7 +49,8 @@ src/
 ├── launch.ts          # Launch lifecycle and payload logic
 ├── launchVehicle.ts   # Launch vehicle management
 ├── dataStore.ts       # JSON-backed data persistence
-└── helpers.ts         # Shared validation and utility functions
+└── helpers.ts         # Helper functions for auth and mission
+└── newHelpers.ts      # Helper functions for astronaut, launch and launch vehicle
 ```
 
 ---
