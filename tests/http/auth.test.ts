@@ -1,8 +1,4 @@
-// import { password_validity, name_validity, email_validity } from './helpers';
-import { errorCategories } from '../../src/testSamples';
-
 import { requestClear, requestAdminAuthRegister, requestadminAuthLogin, requestadminControlUserDetails, requestadminAuthLogout, requestadminControlUserDetailsUpdate, requestadminControlUserPasswordUpdate } from '../../src/requestHelpers';
-// import { Session } from 'inspector/promises';
 
 beforeEach(() => {
   requestClear();

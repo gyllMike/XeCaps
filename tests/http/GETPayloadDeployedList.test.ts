@@ -54,14 +54,14 @@ describe('GET /v1/admin/payload/deployedList', () => {
     );
     lvId = JSON.parse(lvres.body.toString()).launchVehicleId;
     const astro = requestAstronautCreate(
-          sessionId,
-          sampleAstronaut1.nameFirst,
-          sampleAstronaut1.nameLast,
-          sampleAstronaut1.rank,
-          sampleAstronaut1.age,
-          sampleAstronaut1.weight,
-          sampleAstronaut1.height
-        );
+      sessionId,
+      sampleAstronaut1.nameFirst,
+      sampleAstronaut1.nameLast,
+      sampleAstronaut1.rank,
+      sampleAstronaut1.age,
+      sampleAstronaut1.weight,
+      sampleAstronaut1.height
+    );
     astronautId = astro.body.astronautId;
     requestAdminAstronautAssign(sessionId, astronautId, missionId);
     const lres = adminLaunchCreateRequest(sessionId, missionId, {

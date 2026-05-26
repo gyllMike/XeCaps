@@ -8,7 +8,6 @@ import {
   requestAstronautCreate,
   requestAdminAstronautAssign,
   requestlaunchAllocate,
-  requestAstronautRemove
 } from '../../src/requestHelpers';
 
 import {
@@ -74,7 +73,7 @@ describe('POST /v1/admin/mission/:missionid/launch/:launchid/allocate/:astronaut
 
     // assign astronaut
     requestAdminAstronautAssign(sessionId, astronautId, missionId);
-    
+
     // create launch
     const launch = adminLaunchCreateRequest(
       sessionId,
@@ -91,14 +90,14 @@ describe('POST /v1/admin/mission/:missionid/launch/:launchid/allocate/:astronaut
   describe('Success Tests', () => {
     test('Correct output on valid allocation', () => {
       const res = requestlaunchAllocate(sessionId, missionId, launchId, astronautId);
-      
+
       expect(res.statusCode).toBe(200);
       expect(res.body).toEqual({});
     });
 
     test('Correct datastore update after allocation', () => {
       requestlaunchAllocate(sessionId, missionId, launchId, astronautId);
-      
+
       const res = adminLaunchInfoRequest(sessionId, missionId, launchId);
 
       expect(res.statusCode).toBe(200);
@@ -127,7 +126,7 @@ describe('POST /v1/admin/mission/:missionid/launch/:launchid/allocate/:astronaut
       // register user2
       const user2 = requestAdminAuthRegister('user2@email.com', 'password123', 'User', 'Two');
       const sessionId2 = user2.body.controlUserSessionId;
-      
+
       const res = requestlaunchAllocate(sessionId2, missionId, launchId, astronautId);
       expect(res.statusCode).toBe(403);
     });
@@ -147,7 +146,7 @@ describe('POST /v1/admin/mission/:missionid/launch/:launchid/allocate/:astronaut
     test('400: Astronaut is not assigned to the mission', () => {
       const astro2 = requestAstronautCreate(sessionId, 'Buzz', 'Aldrin', 'Colonel', 35, 75, 178);
       const astronautId2 = astro2.body.astronautId;
-      
+
       const res = requestlaunchAllocate(sessionId, missionId, launchId, astronautId2);
       expect(res.statusCode).toBe(400);
     });
@@ -156,7 +155,7 @@ describe('POST /v1/admin/mission/:missionid/launch/:launchid/allocate/:astronaut
       // assign astroaut1
       requestlaunchAllocate(sessionId, missionId, launchId, astronautId);
 
-      const lvres_2 = adminLaunchVehicleCreateRequest(
+      const lvres2 = adminLaunchVehicleCreateRequest(
         sessionId,
         'Lvres Two',
         sampleLaunchVehicle1.description,
@@ -165,27 +164,26 @@ describe('POST /v1/admin/mission/:missionid/launch/:launchid/allocate/:astronaut
         sampleLaunchVehicle1.launchVehicleWeight,
         sampleLaunchVehicle1.thrustCapacity,
         sampleLaunchVehicle1.maneuveringFuel
-      )
-      const lvId_2 = JSON.parse(lvres_2.body.toString()).launchVehicleId;
+      );
+      const lvId2 = JSON.parse(lvres2.body.toString()).launchVehicleId;
 
       const launch2 = adminLaunchCreateRequest(
         sessionId,
         missionId,
         {
-          launchVehicleId: lvId_2, 
+          launchVehicleId: lvId2,
           payload: sampleLaunch1.payload,
           launchParameters: sampleLaunch1.launchParameters
         }
       );
       const launchId2 = JSON.parse(launch2.body.toString()).launchId;
-      
+
       const res = requestlaunchAllocate(sessionId, missionId, launchId2, astronautId);
       expect(res.statusCode).toBe(400);
     });
 
     test('400: Total astronaut weight exceeds maxCrewWeight', () => {
-
-      const astroIds = [];
+      const astroIds: number[] = [];
 
       // 70 for each
       for (let i = 0; i < 8; i++) {
@@ -196,7 +194,7 @@ describe('POST /v1/admin/mission/:missionid/launch/:launchid/allocate/:astronaut
         requestAdminAstronautAssign(sessionId, newAstroId, missionId);
       }
 
-      const lvres_3 = adminLaunchVehicleCreateRequest(
+      const lvres3 = adminLaunchVehicleCreateRequest(
         sessionId,
         'Lvres Three',
         sampleLaunchVehicle1.description,
@@ -205,14 +203,14 @@ describe('POST /v1/admin/mission/:missionid/launch/:launchid/allocate/:astronaut
         sampleLaunchVehicle1.launchVehicleWeight,
         sampleLaunchVehicle1.thrustCapacity,
         sampleLaunchVehicle1.maneuveringFuel
-      )
-      const lvId_3 = JSON.parse(lvres_3.body.toString()).launchVehicleId;
+      );
+      const lvId3 = JSON.parse(lvres3.body.toString()).launchVehicleId;
 
       const launch3 = adminLaunchCreateRequest(
         sessionId,
         missionId,
         {
-          launchVehicleId: lvId_3, 
+          launchVehicleId: lvId3,
           payload: sampleLaunch1.payload,
           launchParameters: sampleLaunch1.launchParameters
         }

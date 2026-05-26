@@ -1,34 +1,3 @@
-// checks all the values for 400 errors ::
-// launchVehicleId is valid
-
-// checks for 401 errors::
-// controlUserSessionId is not valid or is empty
-
-// Test Structure
-
-// setup (beforeEach)
-//  use clearRequest to reset the dataStore
-//  use adminAuthRegisterRequest to create a user
-//  use that controlUserSessionId to manage the rest of our tests
-//  use adminLaunchVehicleCreate to create a launchVehicle
-
-// additional functions
-// None
-
-// Success tests
-//  1. check valid output with valid input
-//  2. No dataStore modification checks needed as we are doing a GET request
-
-// Error tests
-// at least 1 for each of the conditions in the swagger
-// make sure to check for the appropriate status code in the error
-// three types of tests:
-// strings:
-// 1. content is made of expected characters
-// 2. length of string is within expected length
-// numbers:
-// 1. numbers fall within expected boundaries
-
 import {
   requestClear,
   requestAdminAuthRegister,
@@ -86,7 +55,7 @@ describe('GET LaunchInfo', () => {
       sampleAstronaut1.height
     );
     astronautId = ares.body.astronautId;
-    const a = requestAdminAstronautAssign(sessionId, astronautId, missionId);
+    requestAdminAstronautAssign(sessionId, astronautId, missionId);
     const lvres = adminLaunchVehicleCreateRequest(
       sessionId,
       sampleLaunchVehicle1.name,
@@ -117,7 +86,7 @@ describe('GET LaunchInfo', () => {
       const res = adminLaunchInfoRequest(sessionId, missionId, lId);
       expect(res.statusCode).toBe(200);
       const info = JSON.parse(res.body.toString());
-      expect(info.missionCopy.assignedAstronauts[0]).toHaveProperty('designation')
+      expect(info.missionCopy.assignedAstronauts[0]).toHaveProperty('designation');
       expect(info).toMatchObject({
         launchId: lId,
         launchVehicle: {

@@ -1,16 +1,8 @@
-// test for function in mission.js
-// import {adminMissionDescriptionUpdate, adminMissionNameUpdate, adminMissionInfo, adminMissionTargetUpdate } from './mission.js'
-// import { errorCategories } from '../../src/testSamples';
-// import { adminAuthRegister } from '../../src/auth';
-// import { adminMissionCreate, adminMissionInfo, adminMissionTargetUpdate, adminMissionNameUpdate, adminMissionDescriptionUpdate } from '../../src/mission';
-// import { clear } from '../../src/other';
-
 import {
   requestClear, requestAdminAuthRegister, requestadminMissionCreate, requestadminAuthLogin, requestadminMissionList, requestadminMissionRemove, requestadminMissionNameUpdate, requestadminMissionDescriptionUpdate,
   requestAdminMissionInfo, requestadminMissionTargetUpdate,
   requestAstronautCreate,
   requestAdminAstronautAssign, requestAdminAstronautUnassign,
-  // requestastronautGetInfo,
   adminLaunchVehicleCreateRequest,
   adminLaunchCreateRequest,
   requestlaunchAllocate, requestAdminAstronautUnassignOld
@@ -18,9 +10,7 @@ import {
 import {
   sampleLaunchVehicle1,
   sampleLaunch1,
-  sampleAstronaut1
 } from './sampleTestData';
-// import { error } from 'console';
 
 describe('requestadminMissionCreate tests', () => {
   let user1SessionId: string; // To store the first registered user's ID
@@ -276,9 +266,13 @@ describe('PUT /v1/admin/mission/:missionid/description - HTTP layer via requestH
 });
 
 describe('adminMissionInfo tests', () => {
-  let user1, user2, user3;
+  let user1: ReturnType<typeof requestAdminAuthRegister>;
+  let user2: ReturnType<typeof requestAdminAuthRegister>;
+  let user3: ReturnType<typeof requestAdminAuthRegister>;
   let sessionId1: string, sessionId2: string, sessionId3: string;
-  let mission1, mission2, mission3;
+  let mission1: ReturnType<typeof requestadminMissionCreate>;
+  let mission2: ReturnType<typeof requestadminMissionCreate>;
+  let mission3: ReturnType<typeof requestadminMissionCreate>;
   let missionId1: number, missionId2: number, missionId3: number;
   beforeEach(() => {
     requestClear();
@@ -367,7 +361,7 @@ describe('adminMissionInfo tests', () => {
 describe('PUT /v1/admin/mission/:missionid/target', () => {
   let user1SessionId: string;
   let user2SessionId: string;
-  let mission1: any;
+  let mission1: ReturnType<typeof requestadminMissionCreate>;
   beforeEach(() => {
     requestClear();
     const user1Auth = requestAdminAuthRegister('zhen@gmail.com', 'supersafepass123', 'Zhen', 'Cao');
@@ -380,6 +374,7 @@ describe('PUT /v1/admin/mission/:missionid/target', () => {
   test('should update target successfully', () => {
     const newTarget = 'Updated Target';
     const { statusCode, body } = requestadminMissionTargetUpdate(user1SessionId, mission1.body.missionId, newTarget);
+    expect(statusCode).toBe(200);
     expect(body).toStrictEqual({});
     const info = requestAdminMissionInfo(user1SessionId, mission1.body.missionId);
     expect(info.body.target).toBe(newTarget);

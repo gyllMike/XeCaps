@@ -1,5 +1,3 @@
-import { error } from 'console';
-import { getData } from '../../src/dataStore';
 import {
   requestClear,
   requestAdminAuthRegister,
@@ -75,7 +73,7 @@ describe('POST /v1/admin/mission/:missionid/launch/:launchid/allocate/:astronaut
 
     // assign astronaut
     requestAdminAstronautAssign(sessionId, astronautId, missionId);
-    
+
     // create launch
     const launch = adminLaunchCreateRequest(
       sessionId,
@@ -92,14 +90,14 @@ describe('POST /v1/admin/mission/:missionid/launch/:launchid/allocate/:astronaut
   describe('Success Tests', () => {
     test('Correct output on valid allocation', () => {
       const res = requestlaunchAllocate(sessionId, missionId, launchId, astronautId);
-      
+
       expect(res.statusCode).toBe(200);
       expect(res.body).toEqual({});
     });
 
     test('Correct datastore update after allocation', () => {
       requestlaunchAllocate(sessionId, missionId, launchId, astronautId);
-      
+
       const res = adminLaunchInfoRequest(sessionId, missionId, launchId);
 
       expect(res.statusCode).toBe(200);
@@ -128,7 +126,7 @@ describe('POST /v1/admin/mission/:missionid/launch/:launchid/allocate/:astronaut
       // register user2
       const user2 = requestAdminAuthRegister('user2@email.com', 'password123', 'User', 'Two');
       const sessionId2 = user2.body.controlUserSessionId;
-      
+
       const res = requestlaunchAllocate(sessionId2, missionId, launchId, astronautId);
       expect(res.statusCode).toBe(403);
     });
@@ -149,7 +147,7 @@ describe('POST /v1/admin/mission/:missionid/launch/:launchid/allocate/:astronaut
       // create astro2
       const astro2 = requestAstronautCreate(sessionId, 'Buzz', 'Aldrin', 'Colonel', 35, 75, 178);
       const astronautId2 = astro2.body.astronautId;
-      
+
       const res = requestlaunchAllocate(sessionId, missionId, launchId, astronautId2);
       expect(res.statusCode).toBe(400);
     });
@@ -162,19 +160,18 @@ describe('POST /v1/admin/mission/:missionid/launch/:launchid/allocate/:astronaut
         sessionId,
         missionId,
         {
-          launchVehicleId: lvId, 
+          launchVehicleId: lvId,
           payload: sampleLaunch1.payload,
           launchParameters: sampleLaunch1.launchParameters
         }
       );
       const launchId2 = JSON.parse(launch2.body.toString()).launchId;
-      
+
       const res = requestlaunchAllocate(sessionId, missionId, launchId2, astronautId);
       expect(res.statusCode).toBe(400);
     });
 
     test('400: Total astronaut weight exceeds maxCrewWeight', () => {
-
       // total weight 70
       requestlaunchAllocate(sessionId, missionId, launchId, astronautId);
 
@@ -185,12 +182,12 @@ describe('POST /v1/admin/mission/:missionid/launch/:launchid/allocate/:astronaut
         requestAdminAstronautAssign(sessionId, missionId, newAstroId);
         requestlaunchAllocate(sessionId, missionId, launchId, newAstroId);
       }
+
       // total weight 490 kg
-      
       const astro8 = requestAstronautCreate(sessionId, 'Final', 'Astro', 'Crew', 30, 70, 170);
       const astroId8 = astro8.body.astronautId;
       requestAdminAstronautAssign(sessionId, missionId, astroId8);
-      
+
       // total weight 560
       const res = requestlaunchAllocate(sessionId, missionId, launchId, astroId8);
       expect(res.statusCode).toBe(400);

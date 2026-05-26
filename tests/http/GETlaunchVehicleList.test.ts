@@ -1,5 +1,5 @@
-import { requestClear, requestAdminLaunchVechileList, requestAdminAuthRegister, adminLaunchVehicleCreateRequest, requestadminMissionCreate, adminLaunchCreateRequest, requestAdminAstronautAssign, requestAstronautCreate, requestlaunchAllocate } from "../../src/requestHelpers";
-import { sampleMission1, sampleUser1, sampleLaunchVehicle1, sampleLaunchVehicle2, sampleLaunch1, sampleAstronaut1 } from './sampleTestData';
+import { requestClear, requestAdminLaunchVechileList, requestAdminAuthRegister, adminLaunchVehicleCreateRequest, requestadminMissionCreate, adminLaunchCreateRequest } from '../../src/requestHelpers';
+import { sampleMission1, sampleUser1, sampleLaunchVehicle1, sampleLaunchVehicle2, sampleLaunch1 } from './sampleTestData';
 
 beforeEach(() => {
   requestClear();
@@ -114,7 +114,7 @@ describe('launchVehicleList tests', () => {
         sampleMission1.target
       );
       const missionId1 = mission.body.missionId;
-      const launchCreateRes = adminLaunchCreateRequest(
+      adminLaunchCreateRequest(
         sessionId,
         missionId1,
         {
@@ -123,19 +123,6 @@ describe('launchVehicleList tests', () => {
           launchParameters: sampleLaunch1.launchParameters
         }
       );
-      const launchId1 = JSON.parse(launchCreateRes.body.toString()).launchId;
-      // const astronaut = requestAstronautCreate(
-      //   sessionId,
-      //   sampleAstronaut1.nameFirst,
-      //   sampleAstronaut1.nameLast,
-      //   sampleAstronaut1.rank,
-      //   sampleAstronaut1.age,
-      //   sampleAstronaut1.weight,
-      //   sampleAstronaut1.height
-      // );
-      // const astronautId1 = astronaut.body.astronautId;
-      // requestAdminAstronautAssign(sessionId, astronautId1, missionId1);
-      // requestlaunchAllocate(sessionId, missionId1, launchId1, astronautId1);
       const result = requestAdminLaunchVechileList(sessionId);
       expect(result.body).toStrictEqual({
         launchVehicles: [
