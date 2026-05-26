@@ -19,6 +19,20 @@ import {
 
 import HTTPError from 'http-errors';
 
+/**
+  * Creates a new launch vehicle.
+  *
+  * @param name - The name of the launch vehicle
+  * @param description - The description of the launch vehicle
+  * @param maxCrewWeight - The maximum crew weight that the launch vehicle can carry
+  * @param maxPayloadWeight - The maximum payload weight that the launch vehicle can carry
+  * @param launchVehicleWeight - The weight of the launch vehicle
+  * @param thrustCapacity - The thrust capacity of the launch vehicle
+  * @param maneuveringFuel - The starting maneuvering fuel of the launch vehicle
+  *
+  * @returns An object containing the generated launchVehicleId if the launch vehicle is successfully created.
+  * @throws {HTTPError} 400 - Error case: if any launch vehicle details are invalid.
+*/
 export function launchVehicleCreate(
   name: string,
   description: string,
@@ -77,6 +91,14 @@ export function launchVehicleCreate(
   return { launchVehicleId };
 }
 
+/**
+  * Returns the full details of an existing launch vehicle.
+  *
+  * @param launchVehicleId - The unique identifier of the launch vehicle
+  *
+  * @returns An object containing the launch vehicle details and launch history summary.
+  * @throws {HTTPError} 400 - Error case: if the launchVehicleId is invalid.
+*/
 export function launchVehicleInfo(launchVehicleId: number) {
   // check if launchVehicleId is valid
   if (!launchVehicleIdCheck(launchVehicleId)) {
@@ -102,12 +124,13 @@ export function launchVehicleInfo(launchVehicleId: number) {
 }
 
 /**
- * Given controlUserSessionId, list all launch vehicles.
- *
- * @param {string} controlUserSessionId - The unique sessionId of the control user
- * @returns {launchVehicles: {launchVehicleId: number, name: string, assigned: boolean}[]} - Successful case: when listing all launch vehicles successfully
- * @throws {HTTPError} 401 - controlUserSessionId is empty or invalid
- */
+  * Returns a list of all non-retired launch vehicles.
+  *
+  * @param controlUserSessionId - The session ID of the controlUser requesting the launch vehicle list
+  *
+  * @returns An object containing each launch vehicle's id, name and assignment status.
+  * @throws {HTTPError} 401 - Error case: if the controlUserSessionId is invalid.
+*/
 export function launchVehicleList(controlUserSessionId: string) {
   // Use helper function to handle error
   findControlUserIdFromSessionId(controlUserSessionId);
@@ -128,14 +151,15 @@ export function launchVehicleList(controlUserSessionId: string) {
   return { launchVehicles: newArray };
 }
 
-// launchVehicleRetire
 /**
- *  Given a particular launch vehicle, remove it from the list of available launch vehicles by setting its retired status to true.
- *
- * @param launchVehicleId
- * @returns
- */
-export function launchVehicleRetire(launchVehicleId: number) {
+  * Retires an existing launch vehicle.
+  *
+  * @param launchVehicleId - The unique identifier of the launch vehicle
+  *
+  * @returns An empty object if the launch vehicle is successfully retired.
+  * @throws {HTTPError} 400 - Error case: if the launchVehicleId is invalid or the launch vehicle is assigned to an active launch.
+*/
+export function launchVehicleRetire(launchVehicleId: number): Record<string, never> {
   const data = getData();
   const lv = data.launchVehiclesArray.find(lv => lv.launchVehicle.launchVehicleId === launchVehicleId && !lv.launchVehicle.retired)?.launchVehicle;
   if (!lv) {
@@ -153,20 +177,22 @@ export function launchVehicleRetire(launchVehicleId: number) {
   return {};
 }
 
-// launchVehicleUpdate
 /**
- *  Given a particular launch vehicle, remove it from the list of available launch vehicles by setting its retired status to true.
- *
- * @param launchVehicleId
- * @param name
- * @param description
- * @param maxCrewWeight
- * @param maxPayloadWeight
- * @param thrustCapacity
- * @param maneuveringFuel
- * @returns {}
- */
-export function launchVehicleUpdate(launchVehicleId: number, name: string, description: string, maxCrewWeight: number, maxPayloadWeight: number, launchVehicleWeight: number, thrustCapacity: number, maneuveringFuel: number): Record<string, never> | { error: string, errorCategory: string } {
+  * Updates the details of an existing launch vehicle.
+  *
+  * @param launchVehicleId - The unique identifier of the launch vehicle
+  * @param name - The new name of the launch vehicle
+  * @param description - The new description of the launch vehicle
+  * @param maxCrewWeight - The new maximum crew weight that the launch vehicle can carry
+  * @param maxPayloadWeight - The new maximum payload weight that the launch vehicle can carry
+  * @param launchVehicleWeight - The new weight of the launch vehicle
+  * @param thrustCapacity - The new thrust capacity of the launch vehicle
+  * @param maneuveringFuel - The new starting maneuvering fuel of the launch vehicle
+  *
+  * @returns An empty object if the launch vehicle details are successfully updated.
+  * @throws {HTTPError} 400 - Error case: if the launchVehicleId is invalid, the launch vehicle is assigned to an active launch, or any launch vehicle details are invalid.
+*/
+export function launchVehicleUpdate(launchVehicleId: number, name: string, description: string, maxCrewWeight: number, maxPayloadWeight: number, launchVehicleWeight: number, thrustCapacity: number, maneuveringFuel: number): Record<string, never> {
   const data = getData();
 
   const validVehicleError = validLaunchVehicle(name, description, maxCrewWeight, maxPayloadWeight, launchVehicleWeight, thrustCapacity, maneuveringFuel);

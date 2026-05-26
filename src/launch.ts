@@ -33,7 +33,16 @@ import { getData, setData } from './dataStore';
 import HTTPError from 'http-errors';
 const EARTH_RADIUS = 6378000;
 
-// payloadCreate
+/**
+  * Creates a payload for a launch vehicle.
+  *
+  * @param description - The description of the payload
+  * @param weight - The weight of the payload
+  * @param launchVehicleId - The unique identifier of the launch vehicle carrying the payload
+  *
+  * @returns An object containing the newly created payload.
+  * @throws {HTTPError} 400 - Error case: if the payload description or payload weight is invalid.
+*/
 function payloadCreate(description: string, weight: number, launchVehicleId: number) {
   // 400 check to see if payload description is valid
   if (!payloadDescriptionValidCheck(description)) {
@@ -55,7 +64,18 @@ function payloadCreate(description: string, weight: number, launchVehicleId: num
   return { newPayload };
 }
 
-// launchCreate
+/**
+  * Creates a new launch for an existing space mission.
+  *
+  * @param controlUserId - The unique identifier of the controlUser creating the launch
+  * @param missionId - The unique identifier of the space mission
+  * @param launchVehicleId - The unique identifier of the launch vehicle
+  * @param payload - The payload details for the launch
+  * @param launchParams - The launch calculation parameters used for the launch
+  *
+  * @returns An object containing the generated launchId if the launch is successfully created.
+  * @throws {HTTPError} 400 - Error case: if the launchVehicleId, payload or launch calculation parameters are invalid.
+*/
 export function launchCreate(controlUserId: number,
   missionId: number,
   launchVehicleId: number,
@@ -135,7 +155,16 @@ export function launchCreate(controlUserId: number,
   return { launchId: launchId };
 }
 
-// launchInfo
+/**
+  * Returns the full details of an existing launch.
+  *
+  * @param controlUserId - The unique identifier of the controlUser requesting the launch details
+  * @param missionId - The unique identifier of the space mission
+  * @param launchId - The unique identifier of the launch
+  *
+  * @returns An object containing the launch id, mission copy, state, launch vehicle, payload, allocated astronauts and launch calculation parameters.
+  * @throws {HTTPError} 400 - Error case: if the launchId is invalid.
+*/
 export function launchInfo(controlUserId: number,
   missionId: number,
   launchId: number
@@ -171,8 +200,16 @@ export function launchInfo(controlUserId: number,
   };
 }
 
-// launchStateUpdate -> in updateSessionState.ts file
-export function updateLaunchState(newAction: missionLaunchAction, launchId: number) {
+/**
+  * Updates the state of an existing launch using a launch action.
+  *
+  * @param newAction - The action used to update the launch state
+  * @param launchId - The unique identifier of the launch
+  *
+  * @returns An empty object if the launch state is successfully updated.
+  * @throws {HTTPError} 400 - Error case: if the launchId is invalid, the action is invalid for the current state, the target distance cannot be reached, or there is not enough maneuvering fuel.
+*/
+export function updateLaunchState(newAction: missionLaunchAction, launchId: number): Record<string, never> {
   // check to make sure the launch id exists
   if (!checkLaunchIdValidity(launchId)) {
     throw HTTPError(400, 'invalid launchId');
@@ -279,7 +316,14 @@ export function updateLaunchState(newAction: missionLaunchAction, launchId: numb
   return {};
 }
 
-// launchList
+/**
+  * Returns all launches grouped by active and completed status.
+  *
+  * @param sessionId - The session ID of the controlUser requesting the launch list
+  *
+  * @returns An object containing active launch ids and completed launch ids.
+  * @throws {HTTPError} 401 - Error case: if the sessionId is invalid.
+*/
 export function launchList(sessionId: string): { activeLaunches: number[], completedLaunches: number[] } {
   // 1. Check for valid session (401 Error)
   findControlUserIdFromSessionId(sessionId);
@@ -301,13 +345,23 @@ export function launchList(sessionId: string): { activeLaunches: number[], compl
   return { activeLaunches, completedLaunches };
 }
 
-// launchAstronautAllocate
+/**
+  * Allocates an astronaut to an existing launch.
+  *
+  * @param controlUserId - The unique identifier of the controlUser allocating the astronaut
+  * @param missionId - The unique identifier of the space mission
+  * @param launchId - The unique identifier of the launch
+  * @param astronautId - The unique identifier of the astronaut
+  *
+  * @returns An empty object if the astronaut is successfully allocated to the launch.
+  * @throws {HTTPError} 400 - Error case: if the launchId or astronautId is invalid, the astronaut is not assigned to the mission, the astronaut is already allocated to an active launch, or the max crew weight would be exceeded.
+*/
 export function launchAstronautAllocate(
   controlUserId: number,
   missionId: number,
   launchId: number,
   astronautId: number
-) {
+): Record<string, never> {
   const data = getData();
 
   // check 1: launchid is invalid
@@ -366,18 +420,19 @@ export function launchAstronautAllocate(
 }
 
 /**
- * Given controlUserSessionId, astronautId, missionId and launchId, unallocate the astronaut from the launch
- *
- * @param controlUserSessionId - The unique sessionId of the control user
- * @param astronautId - The unique astronautId of the target astronaut that will be unallocated
- * @param missionId - The unique missionId of the target mission that the launch belongs to
- * @param launchId - The unique launchId of the target launch that the astronaut will unallocate from
- * @returns {Recore<string, never>} - Successful case: return an empty object when unallocate the astronaut from the launch successfully
- * @throws {HTTPError} 400 - astronautId or launchId is invalid, or the astronaut has not been allocated to the launch, or the launch has already started and still in progress
- * @throws {HTTPError} 401 - controlUserSessionId is empty or invalid
- * @throws {HTTPError} 403 - missionId does not exist or the control user is not an owner of the mission
- */
-export function launchAstronautDeallocate(controlUserSessionId: string, astronautId: number, missionId: number, launchId: number) {
+  * Deallocates an astronaut from an existing launch.
+  *
+  * @param controlUserSessionId - The session ID of the controlUser deallocating the astronaut
+  * @param astronautId - The unique identifier of the astronaut
+  * @param missionId - The unique identifier of the space mission
+  * @param launchId - The unique identifier of the launch
+  *
+  * @returns An empty object if the astronaut is successfully deallocated from the launch.
+  * @throws {HTTPError} 400 - Error case: if the astronautId or launchId is invalid, the astronaut is not allocated to the launch, or the launch has started and is still in progress.
+  * @throws {HTTPError} 401 - Error case: if the controlUserSessionId is invalid.
+  * @throws {HTTPError} 403 - Error case: if the missionId is invalid or the controlUser does not own the mission.
+*/
+export function launchAstronautDeallocate(controlUserSessionId: string, astronautId: number, missionId: number, launchId: number): Record<string, never> {
   const data = getData();
 
   // check controlUserSessionId
@@ -431,9 +486,13 @@ export function launchAstronautDeallocate(controlUserSessionId: string, astronau
 }
 
 /**
- * @param controlUserSessionId - The session ID of the user (must be valid).
- * @returns An object containing a list of deployed payload details.
- */
+  * Returns a list of all deployed payloads.
+  *
+  * @param controlUserSessionId - The session ID of the controlUser requesting the deployed payload list
+  *
+  * @returns An object containing deployed payload details including speed, deployment time and relative position.
+  * @throws {HTTPError} 401 - Error case: if the controlUserSessionId is invalid.
+*/
 export function payloadDeployedList(controlUserSessionId: string) {
   // 401 Check
   findControlUserIdFromSessionId(controlUserSessionId);

@@ -1,5 +1,6 @@
 // // This file should contain your functions relating to:
 // // - adminMission*
+
 import { DataStore, getData, setData, SpaceMission } from './dataStore';
 import { missionIdGen, missionNameValidity, missionDescriptionValidity, missionTargetValidity, findControlUserIdFromSessionId, isAstronautAssigned } from './helpers';
 import { missionIdCheck } from './helpers';
@@ -14,7 +15,19 @@ interface MissionListSuccess {
   missions: MissionListItem[];
 }
 
-export function adminMissionTargetUpdate(sessionId: string, missionId: number, target: string) {
+/**
+  * Updates the target of an existing space mission.
+  *
+  * @param sessionId - The session ID of the controlUser updating the mission
+  * @param missionId - The unique identifier of the space mission
+  * @param target - The new target for the space mission
+  *
+  * @returns An empty object if the mission target is successfully updated.
+  * @throws {HTTPError} 400 - Error case: if the target is invalid.
+  * @throws {HTTPError} 401 - Error case: if the sessionId is invalid.
+  * @throws {HTTPError} 403 - Error case: if the missionId is invalid or the controlUser does not own the mission.
+*/
+export function adminMissionTargetUpdate(sessionId: string, missionId: number, target: string): Record<string, never> {
   const controlUserId = findControlUserIdFromSessionId(sessionId);
 
   // 1. Verify the mission exists and the user owns it.
@@ -39,14 +52,13 @@ export function adminMissionTargetUpdate(sessionId: string, missionId: number, t
 }
 
 /**
-  *  Returns a list of all space missions that are owned by the currently logged in control user.
+  * Returns a list of all active space missions owned by a mission control user.
   *
-  * @param {number} controlUserId - use to find the target user
+  * @param controlUserId - The unique identifier of the controlUser
   *
-  * @return {missionId} - the mission id number
-  * @return {name} - the mission name
+  * @returns An object containing the missionId and name of each active space mission owned by the controlUser.
 */
-export function adminMissionList (controlUserId: number): MissionListSuccess | { error: string, errorCategory: string } {
+export function adminMissionList (controlUserId: number): MissionListSuccess {
   const data = getData();
   return {
     missions: data.spaceMissionsArray.filter(i => i.spaceMission.controlUserId === controlUserId && i.spaceMission.isMissionActive)
@@ -57,8 +69,19 @@ export function adminMissionList (controlUserId: number): MissionListSuccess | {
   };
 }
 
-/* Given basic details about a new space mission, create one for the logged in control user. */
-export function adminMissionCreate (sessionId: string, name: string, description: string, target: string): { missionId: number } | { error: string, errorCategory: string } {
+/**
+  * Creates a new space mission for an authenticated mission control user.
+  *
+  * @param sessionId - The session ID of the controlUser creating the mission
+  * @param name - The name of the space mission
+  * @param description - The description of the space mission
+  * @param target - The target of the space mission
+  *
+  * @returns An object containing the generated missionId if the space mission is successfully created.
+  * @throws {HTTPError} 400 - Error case: if the name, description or target is invalid.
+  * @throws {HTTPError} 401 - Error case: if the sessionId is invalid.
+*/
+export function adminMissionCreate (sessionId: string, name: string, description: string, target: string): { missionId: number } {
   const controlUserId = findControlUserIdFromSessionId(sessionId);
 
   // 1. BAD_INPUT Checks for Mission Name
@@ -100,12 +123,15 @@ export function adminMissionCreate (sessionId: string, name: string, description
   return { missionId: newMissionId };
 }
 
-/**  Given a particular missionId, permanently remove the space mission.
- *
- * @param {number} controlUserId - the target mission's user ID
- * @param {number} missionId - the target mission ID
- *
- * @return {} - return empty if remove successfully
+/**
+  * Removes an existing space mission owned by a mission control user.
+  *
+  * @param controlUserId - The unique identifier of the controlUser
+  * @param missionId - The unique identifier of the space mission
+  *
+  * @returns An empty object if the space mission is successfully removed.
+  * @throws {HTTPError} 400 - Error case: if an astronaut is assigned to the mission.
+  * @throws {HTTPError} 403 - Error case: if the missionId is invalid or the mission has already been removed.
 */
 export function adminMissionRemove(controlUserId: number, missionId: number): Record<string, never> {
   const data: DataStore = getData();
@@ -121,15 +147,14 @@ export function adminMissionRemove(controlUserId: number, missionId: number): Re
 }
 
 /**
- * Given controlUserId and missionId to get access to all of the information of that specific space mission.
- *
- * @param {number} controlUserId - The unique controlUserId of the user, generated when the user first registers
- * @param {number} missionId - The unique missionId of the space mission, generated when the mission was first created
- *
- * @returns {{ missionId: number, name: string, timeCreated: number, timeLastEdited: number, description: string, target: string, assignedAstronauts: { astronautId: number, designation: string }[] }} - Successful case: when the space mission exists and matches the controlUser
- * @throws {HTTPError} 401 - Error case: when the controlUserId is invalid
- * @throws {HTTPError} 403 - Error case: when the missionId does not exist or does not match this controlUserId.
- */
+  * Returns the full details of an existing space mission owned by a mission control user.
+  *
+  * @param controlUserId - The unique identifier of the controlUser
+  * @param missionId - The unique identifier of the space mission
+  *
+  * @returns An object containing the mission id, name, timestamps, description, target and assigned astronauts.
+  * @throws {HTTPError} 403 - Error case: if the missionId is invalid or the controlUser does not own the mission.
+*/
 export function adminMissionInfo(controlUserId: number, missionId: number): { missionId: number, name: string, timeCreated: number, timeLastEdited: number, description: string, target: string, assignedAstronauts: { astronautId: number, designation: string }[] } {
   const data: DataStore = getData();
   const missionArray: { spaceMission: SpaceMission }[] = data.spaceMissionsArray;
@@ -170,16 +195,15 @@ export function adminMissionInfo(controlUserId: number, missionId: number): { mi
 }
 
 /**
-  * <Checking Error input of ControlUserId, MissionId and name>
+  * Updates the name of an existing space mission.
   *
-  * @param {NUMBER} controlUserId - The ID of user, return in random number
-  * @param {NUMBER} missionId - The ID of mission id above specific ControlUserId
-  * @param {Char} name - The name of mission
+  * @param controlUserId - The unique identifier of the controlUser
+  * @param missionId - The unique identifier of the space mission
+  * @param name - The new name of the space mission
   *
-  * @returns {{}} - Return a empty object
-  * @returns {401, 'Control User Id Invalidity'} invalid_credentials when controluserid is in error type
-  * @return {403, 'Mission Id Invalidity'} inaccessible_value when missionid is in error
-  * @return {400, 'mission name Invalidity'}  bad_input when name is in error
+  * @returns An empty object if the mission name is successfully updated.
+  * @throws {HTTPError} 400 - Error case: if the mission name is invalid.
+  * @throws {HTTPError} 403 - Error case: if the missionId is invalid or the controlUser does not own the mission.
 */
 export function adminMissionNameUpdate(controlUserId: number, missionId: number, name: string): Record<string, never> {
   if (missionIdCheck(missionId, controlUserId) === false || !missionId) {
@@ -203,18 +227,16 @@ export function adminMissionNameUpdate(controlUserId: number, missionId: number,
 }
 
 /**
-  * <Checking Error input of ControlUserId, MissionId and Description>
+  * Updates the description of an existing space mission.
   *
-  * @param {number} controlUserId - The ID of user, return in random number
-  * @param {number} missionId - The ID of mission id above specific ControlUserId
-  * @param {char} description - The description of specific mission
+  * @param controlUserId - The unique identifier of the controlUser
+  * @param missionId - The unique identifier of the space mission
+  * @param description - The new description of the space mission
   *
-  * @returns {{}} - Return a empty object
-  * @returns {401, 'Control User Id Invalidity'} invalid_credentials when controluserid is in error type
-  * @return {402, 'Mission Id Invalidity'} inaccessible_value when missionid is in error
-  * @return {403, 'mission description Invalidity'}  bad_input when descripition is in error
+  * @returns An empty object if the mission description is successfully updated.
+  * @throws {HTTPError} 400 - Error case: if the mission description is invalid.
+  * @throws {HTTPError} 403 - Error case: if the missionId is invalid or the controlUser does not own the mission.
 */
-
 export function adminMissionDescriptionUpdate(controlUserId: number, missionId: number, description: string): Record<string, never> {
   if (!missionId || missionIdCheck(missionId, controlUserId) === false) {
     throw HTTPError(403, 'badinput');
@@ -236,16 +258,17 @@ export function adminMissionDescriptionUpdate(controlUserId: number, missionId: 
 }
 
 /**
- * Given the sessionId, missionId and astronautId, assign the astronaut (referred by astronautId) to the mission (referred by missionId).
- *
- * @param {string} controlUserSessionId - The unique sessionId of the control user
- * @param {number} missionId - The unique missionId of the target mission that the astronaut will assign to
- * @param {number} astronautId - The unique astronautId of the target astronaut that will be assigned
- * @returns {Record<string, never>} - Successful case: return empty object when assigning the astronaut to the mission successfully
- * @throws {HTTPError} 400 - astronautId is invalid, or the astronaut is already assigned to another mission
- * @throws {HTTPError} 401 - controlUserSessionId is empty or invalid
- * @throws {HTTPError} 403 - missionId does not exist, or the controlUser is not the owner of the mission
- */
+  * Assigns an astronaut to an existing space mission.
+  *
+  * @param controlUserSessionId - The session ID of the controlUser assigning the astronaut
+  * @param missionId - The unique identifier of the space mission
+  * @param astronautId - The unique identifier of the astronaut
+  *
+  * @returns An empty object if the astronaut is successfully assigned to the mission.
+  * @throws {HTTPError} 400 - Error case: if the astronautId is invalid or the astronaut is already assigned to another mission.
+  * @throws {HTTPError} 401 - Error case: if the controlUserSessionId is invalid.
+  * @throws {HTTPError} 403 - Error case: if the missionId is invalid or the controlUser does not own the mission.
+*/
 export function adminAstronautAssign(controlUserSessionId: string, missionId: number, astronautId: number): Record<string, never> {
   const data = getData();
 
@@ -293,16 +316,17 @@ export function adminAstronautAssign(controlUserSessionId: string, missionId: nu
 }
 
 /**
- * Given the sessionId, missionId and astronautId, unassign the astronaut (referred by astronautId) to the mission (referred by missionId).
- *
- * @param {string} controlUserSessionId - The unique sessionId of the control user
- * @param {number} missionId - The unique missionId of the target mission that the astronaut will assign to
- * @param {number} astronautId - The unique astronautId of the target astronaut that will be assigned
- * @returns {Record<string, never>} - Successful case: return empty object when assigning the astronaut to the mission successfully
- * @throws {HTTPError} 400 - astronautId is invalid, or the astronaut is not assigned to this mission
- * @throws {HTTPError} 401 - controlUserSessionId is empty or invalid
- * @throws {HTTPError} 403 - missionId does not exist, or the controlUser is not the owner of the mission
- */
+  * Unassigns an astronaut from an existing space mission.
+  *
+  * @param controlUserSessionId - The session ID of the controlUser unassigning the astronaut
+  * @param missionId - The unique identifier of the space mission
+  * @param astronautId - The unique identifier of the astronaut
+  *
+  * @returns An empty object if the astronaut is successfully unassigned from the mission.
+  * @throws {HTTPError} 400 - Error case: if the astronautId is invalid, the astronaut is not assigned to the mission, or the astronaut is allocated to a launch.
+  * @throws {HTTPError} 401 - Error case: if the controlUserSessionId is invalid.
+  * @throws {HTTPError} 403 - Error case: if the missionId is invalid or the controlUser does not own the mission.
+*/
 export function adminAstronautUnassign(controlUserSessionId: string, missionId: number, astronautId: number): Record<string, never> {
   const data = getData();
 
